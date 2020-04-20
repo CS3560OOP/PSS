@@ -29,6 +29,10 @@ class Date {
     _updateDate();
   }
 
+  void _updateDate() {
+    this._date = DateTime(this._year, this._month, this._day);
+  }
+
   int getYear() => this._year;
 
   int getMonth() => this._month;
@@ -36,10 +40,6 @@ class Date {
   int getDay() => this._day;
 
   int getIntDate() => this._year * 10000 + this._month * 100 + this._day;
-
-  void _updateDate() {
-    this._date = DateTime(this._year, this._month, this._day);
-  }
 
   // formatted getters
   String getFormattedDate() => DateFormat.yMMMMd().format(this._date);

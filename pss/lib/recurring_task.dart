@@ -1,23 +1,25 @@
 import 'task.dart';
+import 'date.dart';
 
 class RecurringTask extends Task {
   //class properties
-  int _startDate;
-  int _endDate;
+  Date _startDate;
+  Date _endDate;
   int _frequency;
 
   //constructor
-  RecurringTask(String n, String t, int sD, double sT, double d, int e, int f) {
+  RecurringTask(
+      String n, String t, Date sD, double sT, double d, Date eD, int f) {
+    _startDate = sD;
+    _endDate = eD;
+    _frequency = f;
     this.setName(n);
     this.setType(t);
-    _startDate = sD;
     this.setStartTime(sT);
     this.setDuration(d);
-    _endDate = e;
-    _frequency = f;
   }
 
-  RecurringTask.fromJson(Map<String, dynamic> json){
+  RecurringTask.fromJson(Map<String, dynamic> json) {
     _startDate = json['StartDate'];
     _endDate = json['EndDate'];
     _frequency = json['Frequency'];
@@ -26,33 +28,31 @@ class RecurringTask extends Task {
     this.setStartTime(json['StartTime']);
     this.setDuration(json['Duration']);
   }
-    
-  
-  Map<String, dynamic> toJson() => {
-    'Name' : this.getName(),
-    'Type' : this.getType(),
-    'StartDate' : _startDate,
-    'StartTime' : this.getStartTime(),
-    'Duration' : this.getDuration(),
-    'EndDate' : _endDate,
-    'Frequency' : _frequency,
-  };
 
+  Map<String, dynamic> toJson() => {
+        'Name': this.getName(),
+        'Type': this.getType(),
+        'StartDate': _startDate.getIntDate(),
+        'StartTime': this.getStartTime(),
+        'Duration': this.getDuration(),
+        'EndDate': _endDate.getIntDate(),
+        'Frequency': _frequency,
+      };
 
   //class methods (accessors and mutators)
-  void setStartDate(int s) {
+  void setStartDate(Date s) {
     _startDate = s;
   }
 
-  int getStartDate() {
+  Date getStartDate() {
     return _startDate;
   }
 
-  void setEndDate(int e) {
+  void setEndDate(Date e) {
     _endDate = e;
   }
 
-  int getEndDate() {
+  Date getEndDate() {
     return _endDate;
   }
 

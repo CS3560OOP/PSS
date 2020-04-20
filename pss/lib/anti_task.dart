@@ -1,15 +1,16 @@
 import 'task.dart';
+import 'date.dart';
 
-class AntiTask extends Task{
+class AntiTask extends Task {
   //class properties
-  int _date;
+  Date _date;
 
   //class methods (accessors and mutators)
-  void setDate(int d){
+  void setDate(Date d) {
     _date = d;
   }
 
-  int getDate(){
+  Date getDate() {
     return _date;
   }
 }

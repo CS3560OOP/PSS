@@ -19,7 +19,7 @@ class FileHandler {
   }
 
   //Write data to the file
-  Future<File> writeData(String data,String fileName) async {
+  Future<File> writeData(String data, String fileName) async {
     _fileName = fileName;
 
     final file = await _localFile;
@@ -30,18 +30,16 @@ class FileHandler {
   //Read the data from the file
   Future<String> readData(String fileName) async {
     _fileName = fileName;
-  try {
-    final file = await _localFile;
+    try {
+      final file = await _localFile;
 
-    // Read the file.
-    String contents = await file.readAsString();
+      // Read the file.
+      String contents = await file.readAsString();
 
-    return contents;
-  } catch (e) {
-    // If encountering an error, return 0.
-    return "0";
+      return contents;
+    } catch (e) {
+      // If encountering an error, return 0.
+      return "0";
+    }
   }
-}
-
-
 }

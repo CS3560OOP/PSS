@@ -2,6 +2,7 @@ import 'fileHandler.dart';
 import 'recurring_task.dart';
 import 'task.dart';
 import 'dart:convert';
+import 'date.dart';
 
 class Scheduler {
   //class properties
@@ -18,7 +19,7 @@ class Scheduler {
     //testing
     print(schedule ?? "0");
     RecurringTask temp2 = new RecurringTask(
-        "CS3560-Tu", "Class", 20200414, 19, 1.25, 20200505, 7);
+        "CS3560-Tu", "Class", Date(20200414), 19, 1.25, Date(20200505), 7);
 
     schedule.add(temp2);
 

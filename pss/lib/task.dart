@@ -6,15 +6,14 @@ class Task {
   double _duration;
 
   //constructor
-  Task(){
+  Task() {}
 
-  }
   // Task.fromJson(Map<String, dynamic> json)
   //   : _name = json['Name'],
   //     _type = json['Type'],
   //     _startTime = json['StartTime'],
   //     _duration = json['Duration'];
-  
+
   // Map<String, dynamic> toJson() => {
   //   'Name' : _name,
   //   'Type' : _type,
@@ -23,42 +22,38 @@ class Task {
   // };
 
   //class methods (accessors and mutators)
-  void setName(String n){
+  void setName(String n) {
     _name = n;
   }
 
-  String getName(){
+  String getName() {
     return _name;
   }
 
-  void setType(String t){
+  void setType(String t) {
     _type = t;
   }
 
-  String getType(){
+  String getType() {
     return _type;
   }
 
-  void setStartTime(double t){
+  void setStartTime(double t) {
     _startTime = t;
   }
 
-  double getStartTime(){
+  double getStartTime() {
     return _startTime;
   }
 
-  void setDuration(double d){
-    _duration  = d;
+  void setDuration(double d) {
+    _duration = d;
   }
 
-  double getDuration(){
+  double getDuration() {
     return _duration;
   }
 
   //
-
-
-
-
 
 }
