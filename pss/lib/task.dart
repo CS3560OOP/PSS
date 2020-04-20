@@ -5,8 +5,9 @@ class Task {
   double _startTime;
   double _duration;
 
-  //constructor
-  Task() {}
+  //constructors
+  Task(this._name, this._type, this._startTime, this._duration);
+  Task.empty(); //empty constructor
 
   // Task.fromJson(Map<String, dynamic> json)
   //   : _name = json['Name'],

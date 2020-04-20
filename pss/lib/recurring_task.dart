@@ -8,18 +8,12 @@ class RecurringTask extends Task {
   int _frequency;
 
   //constructor
-  RecurringTask(
-      String n, String t, Date sD, double sT, double d, Date eD, int f) {
-    _startDate = sD;
-    _endDate = eD;
-    _frequency = f;
-    this.setName(n);
-    this.setType(t);
-    this.setStartTime(sT);
-    this.setDuration(d);
-  }
+  RecurringTask(String name, String type, double startTime, double duration,
+      this._startDate, this._endDate, this._frequency)
+      : super(name, type, startTime, duration);
 
-  RecurringTask.fromJson(Map<String, dynamic> json) {
+  // constructor to take json file
+  RecurringTask.fromJson(Map<String, dynamic> json) : super.empty() {
     _startDate = json['StartDate'];
     _endDate = json['EndDate'];
     _frequency = json['Frequency'];

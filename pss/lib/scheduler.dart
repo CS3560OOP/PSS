@@ -19,7 +19,7 @@ class Scheduler {
     //testing
     print(schedule ?? "0");
     RecurringTask temp2 = new RecurringTask(
-        "CS3560-Tu", "Class", Date(20200414), 19, 1.25, Date(20200505), 7);
+        "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
 
     schedule.add(temp2);
 

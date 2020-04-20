@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pss/task.dart';
-import 'package:pss/recurring_task.dart';
+import '../anti_task.dart';
+import '../recurring_task.dart';
+import '../task.dart';
 
 class TaskCard extends StatefulWidget {
   final Task _task;
@@ -21,18 +22,26 @@ class _TaskCardState extends State<TaskCard> {
   String _endDate;
   String _frequency;
 
+  Color _color;
+
   _TaskCardState(this._task) {
     _name = _task.getName();
     _type = _task.getType();
     _startTime = _task.getStartTime().toString();
     _duration = _task.getDuration().toString();
     if (_task is RecurringTask) {
+      _color = Colors.amberAccent;
       _startDate = _task.getStartDate().getFormattedDate().toString();
       _endDate = _task.getEndDate().getFormattedDate().toString();
       _frequency = _task.getFrequency().toString();
     } else {
       // Anti-Task or Transient-Task
       _date = _task.getDate().getFormattedDate().toString();
+      if (_task is AntiTask) {
+        _color = Colors.redAccent;
+      } else {
+        _color = Colors.tealAccent;
+      }
     }
   }
 
@@ -41,7 +50,7 @@ class _TaskCardState extends State<TaskCard> {
     return Container(
       padding: EdgeInsets.all(10.0),
       margin: EdgeInsets.all(10.0),
-      color: Colors.amberAccent.shade100,
+      color: _color,
       child: Column(
         children: <Widget>[
           Text("Name: $_name"),
