@@ -8,7 +8,8 @@ class FileHandler {
 
   //Find the local path
   Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
+    // final directory = await getApplicationDocumentsDirectory();
+    final directory = await getExternalStorageDirectory();
     return directory.path;
   }
 

@@ -14,13 +14,13 @@ class RecurringTask extends Task {
 
   // constructor to take json file
   RecurringTask.fromJson(Map<String, dynamic> json) : super.empty() {
-    _startDate = json['StartDate'];
-    _endDate = json['EndDate'];
-    _frequency = json['Frequency'];
     this.setName(json['Name']);
     this.setType(json['Type']);
+    _startDate = json['StartDate'];
     this.setStartTime(json['StartTime']);
     this.setDuration(json['Duration']);
+    _endDate = json['EndDate'];
+    _frequency = json['Frequency'];
   }
 
   Map<String, dynamic> toJson() => {
