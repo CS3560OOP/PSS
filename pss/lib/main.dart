@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'task_object_generator.dart';
 import 'scheduler.dart';
 import 'components/task_card.dart';
 import 'task.dart';
-import 'testData/test_data.dart' as data;
-import 'validator.dart';
+import 'create/create_task_dialog_renderer.dart';
+import 'constants.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,11 +11,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'PSS',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'PSST'),
     );
   }
 }
@@ -24,38 +23,56 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   Scheduler scheduler;
-  Widget taskList;
+  List<TaskCard> taskList;
+  List sched;
+
+  CreateTaskDialogRenderer createTaskDialog;
   @override
   void initState() {
     super.initState();
     //initialize data for page
     scheduler = new Scheduler();
+    createTaskDialog = new CreateTaskDialogRenderer(context);
+    this.sched = scheduler.fetchSchedule();
+    this.taskList = this.sched.map((item) => new TaskCard(item)).toList();
   }
 
-  // TEST DATA ONLY
-  final tasks = data.TestData.set1;
-
   // generate task cards
-  List<TaskCard> _getTaskCards() {
-    final generator = TaskObjectGenerator();
-    final validator = Validator();
-    var list = tasks.map((item) {
-      Task task;
-      if (validator.isValidReccurringTask(item)) {
-        task = generator.generateTask(item);
-      } else {
-        print("Invalid Task : $item");
-      }
-      return TaskCard(task);
-    }).toList();
-    return list;
+  void _updateState() {
+    setState(() {
+      this.sched = scheduler.fetchSchedule();
+      this.taskList = this.sched.map((item) => new TaskCard(item)).toList();
+    });
+  }
+
+  void _createRecurringTask() async {
+    // get input from user
+    var data = await createTaskDialog.showAddRecurringTaskDialog();
+    // create task
+    scheduler.createTask(data);
+    _updateState();
+  }
+
+  void _createTransientTask() async {
+    // get input from user
+    var data = await createTaskDialog.showAddTransientTaskDialog();
+    // create task
+    scheduler.createTask(data);
+    _updateState();
+  }
+
+  void _createAntiTask() async {
+    // get input from user
+    var data = await createTaskDialog.showAddAntiTaskDialog();
+    // create task
+    scheduler.createTask(data);
+    _updateState();
   }
 
   @override
@@ -64,8 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: ListView(children: _getTaskCards()),
+      body: Center(child: ListView(children: this.taskList)),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => createTaskDialog.showTaskTypesDialogBox(
+            _createRecurringTask, _createTransientTask, _createAntiTask),
       ),
     );
   }

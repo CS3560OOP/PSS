@@ -35,5 +35,18 @@ main() {
       final date = 20210229;
       expect(validator.isValidDate(Date(date)), false);
     });
+
+    test("isValidTask() valid task : value should be true", () {
+      final task = {
+        "Name": "CS3560-Tu",
+        "Type": "Class",
+        "StartDate": 20200414,
+        "StartTime": 19,
+        "Duration": 1.25,
+        "EndDate": 20200505,
+        "Frequency": 7
+      };
+      expect(validator.isValidTask(task), true);
+    });
   });
 }

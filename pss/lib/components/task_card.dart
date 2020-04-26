@@ -25,23 +25,21 @@ class _TaskCardState extends State<TaskCard> {
   Color _color;
 
   _TaskCardState(this._task) {
-    _name = _task.getName();
-    _type = _task.getType();
+    _name = _task.getName().toString();
+    _type = _task.getType().toString();
     _startTime = _task.getStartTime().toString();
     _duration = _task.getDuration().toString();
+    _color = Colors.amberAccent;
     if (_task is RecurringTask) {
-      _color = Colors.amberAccent;
       _startDate = _task.getStartDate().getFormattedDate().toString();
       _endDate = _task.getEndDate().getFormattedDate().toString();
       _frequency = _task.getFrequency().toString();
     } else {
+      _task is AntiTask
+          ? _color = Colors.redAccent
+          : _color = Colors.tealAccent;
       // Anti-Task or Transient-Task
       _date = _task.getDate().getFormattedDate().toString();
-      if (_task is AntiTask) {
-        _color = Colors.redAccent;
-      } else {
-        _color = Colors.tealAccent;
-      }
     }
   }
 
