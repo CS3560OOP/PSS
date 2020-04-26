@@ -1,6 +1,10 @@
 import 'package:intl/intl.dart';
 import 'date.dart';
-import 'create/type_matcher.dart';
+import 'type_matcher.dart';
+import 'anti_task.dart';
+import 'recurring_task.dart';
+import 'transient_task.dart';
+import 'task.dart';
 
 class Validator {
   /// This function verifies if the Date exists
@@ -23,7 +27,7 @@ class Validator {
   }
 
   bool isValidTask(Map<String, Object> task) {
-    final matcher = TypeMatcher();
+    final matcher = new TypeMatcher();
     bool isValid;
     var name = task["Name"];
     var type = task["Type"];
@@ -48,8 +52,8 @@ class Validator {
   }
 
   bool isValidReccurringTask(Map<String, Object> task) {
-    var sDate = Date(task["StartDate"]);
-    var eDate = Date(task["EndDate"]);
+    var sDate = new Date(task["StartDate"]);
+    var eDate = new Date(task["EndDate"]);
     var freq = task["Frequency"];
     if ((isValidDate(sDate)) && (isValidDate(eDate)) && (freq is int)) {
       return true;
@@ -58,7 +62,5 @@ class Validator {
     }
   }
 
-  bool isDateAvailable() {
-    // TODO: implement
-  }
+  bool isTimeAvailable(List<Task> existingTasks, Task newTask) {}
 }

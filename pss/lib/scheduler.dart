@@ -12,7 +12,7 @@ import 'testData/test_data.dart' as data;
 
 class Scheduler {
   //class properties
-  List<Task> schedule;
+  List<Task> _schedule;
   FileHandler fileIO;
 
   // TEST DATA ONLY
@@ -21,27 +21,27 @@ class Scheduler {
   //constructor
   Scheduler() {
     //start with empty schedule
-    schedule = new List<Task>();
+    _schedule = new List<Task>();
     //create the fileHandler object
     fileIO = new FileHandler();
 
     //testing
-    print(schedule ?? "0");
+    print(_schedule ?? "0");
     RecurringTask temp2 = new RecurringTask(
         "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
-
-    schedule.add(temp2);
+    createSchedule();
+    _schedule.add(temp2);
 
     writeToFile("test.json");
     readFromFile("test.json");
-    // print(schedule);
+    // print(_schedule);
   }
 
   //Write the schedule to a file
   void writeToFile(String fileName) {
     // var temp = {"name": "CS4600", "type": "Class", "duration": 1.75};
     var jsonString = "[";
-    for (var task in schedule) {
+    for (var task in _schedule) {
       jsonString += jsonEncode(task);
     }
     // jsonString += jsonEncode(temp);
@@ -62,8 +62,8 @@ class Scheduler {
   }
 
   /// Returns processed schedule
-  List<Task> fetchSchedule() {
-    List<Task> list = this.tasks.map((item) {
+  void createSchedule() {
+    this._schedule = this.tasks.map((item) {
       Task t;
       if (Validator().isValidTask(item))
         t = TaskGenerator().generateTask(item);
@@ -71,14 +71,18 @@ class Scheduler {
         throw Exception("Invalid Schedule");
       return t;
     }).toList();
-    return list;
   }
+
+  List<Task> getSchedule() => this._schedule;
 
   /// Create a task
   /// Appends new task to global task list
   void createTask(Map<String, Object> data) {
-    if (Validator().isValidTask(data)) {
-      this.tasks.add(data);
+    var newTask = TaskGenerator().generateTask(data);
+    if (Validator().isValidTask(data) ||
+        Validator().isTimeAvailable(this._schedule, newTask)) {
+      /// check if Date and Time is available
+      this._schedule.add(newTask);
     } else {
       throw Exception("Error: Invalid Task format!");
     }

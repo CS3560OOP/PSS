@@ -4,6 +4,7 @@ import 'components/task_card.dart';
 import 'task.dart';
 import 'create/create_task_dialog_renderer.dart';
 import 'constants.dart';
+import 'date.dart';
 
 void main() => runApp(MyApp());
 
@@ -39,14 +40,14 @@ class _MyHomePageState extends State<MyHomePage> {
     //initialize data for page
     scheduler = new Scheduler();
     createTaskDialog = new CreateTaskDialogRenderer(context);
-    this.sched = scheduler.fetchSchedule();
+    this.sched = scheduler.getSchedule();
     this.taskList = this.sched.map((item) => new TaskCard(item)).toList();
   }
 
   // generate task cards
   void _updateState() {
     setState(() {
-      this.sched = scheduler.fetchSchedule();
+      this.sched = scheduler.getSchedule();
       this.taskList = this.sched.map((item) => new TaskCard(item)).toList();
     });
   }
@@ -81,11 +82,22 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(child: ListView(children: this.taskList)),
+      body: Center(
+          child: ListView(children: [
+        Center(
+          child: Text(
+            Date(20210113).getNextDay().getIntDate().toString(),
+          ),
+        ),
+        ...this.taskList,
+      ])),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => createTaskDialog.showTaskTypesDialogBox(
-            _createRecurringTask, _createTransientTask, _createAntiTask),
+          () => _createRecurringTask(),
+          () => _createTransientTask(),
+          () => _createAntiTask(),
+        ),
       ),
     );
   }

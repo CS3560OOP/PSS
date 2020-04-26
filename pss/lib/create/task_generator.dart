@@ -3,7 +3,7 @@ import '../transient_task.dart';
 import '../recurring_task.dart';
 import '../anti_task.dart';
 import '../date.dart';
-import '../create/type_matcher.dart';
+import '../type_matcher.dart';
 
 /// This class helps generates an object
 /// with the correct task class
@@ -31,7 +31,6 @@ class TaskGenerator {
     Date sDate = Date(task["StartDate"]);
     Date eDate = Date(task["EndDate"]);
     int freq = int.parse(task["Frequency"].toString());
-
     return RecurringTask(name, type, sTime, dur, sDate, eDate, freq);
   }
 
@@ -41,7 +40,6 @@ class TaskGenerator {
     double sTime = double.parse(task["StartTime"].toString());
     double dur = double.parse(task["Duration"].toString());
     Date date = Date(task["Date"]);
-
     return TransientTask(name, type, sTime, dur, date);
   }
 
@@ -51,7 +49,6 @@ class TaskGenerator {
     double sTime = double.parse(task["StartTime"].toString());
     double dur = double.parse(task["Duration"].toString());
     Date date = Date(task["Date"]);
-
     return AntiTask(name, type, sTime, dur, date);
   }
 }
