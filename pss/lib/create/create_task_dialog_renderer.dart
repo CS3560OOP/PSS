@@ -12,6 +12,7 @@ class CreateTaskDialogRenderer {
   static final _endDateTextController = new TextEditingController();
   static final _frequencyTextController = new TextEditingController();
   static final _dateTextController = new TextEditingController();
+  String typeValue = '';
 
   BuildContext context;
   CreateTaskDialogRenderer(this.context);
@@ -20,6 +21,43 @@ class CreateTaskDialogRenderer {
     keyboardType: TextInputType.text,
     decoration: InputDecoration(labelText: "Name"),
   );
+
+  //Creates a dropdown item that displays correctly but is currently non functional
+  //because normally the onchanged function would call setState() but that method is not visible from here
+  Widget createTypeInputField(String typeOfTask) {
+    List<String> taskTypes = new List<String>();
+    if (typeOfTask.compareTo("anti") == 0) {
+      taskTypes = antiTaskTypes;
+    } else if (typeOfTask.compareTo("trans") == 0) {
+      taskTypes = transTaskTypes;
+    } else if (typeOfTask.compareTo("recur") == 0) {
+      taskTypes = recurTaskTypes;
+    }
+
+    return FormField<String>(builder: (FormFieldState<String> state) {
+      return InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Type',
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton(
+          isDense: true,
+          onChanged: (String type) {
+            //SetState function here
+            //not sure if it is possible to manually set the text field of a controller
+            _typeTextController.text = type;
+          },
+          items: taskTypes.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+            }).toList(),
+          )
+        )
+      );
+    });
+  }
 
   // TODO: turn into dropdown??
   var _typeInputField = new TextFormField(
@@ -134,7 +172,7 @@ class CreateTaskDialogRenderer {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         _nameInputField,
-        _typeInputField,
+        createTypeInputField("recur"),
         _startTimeInputField,
         _durationInputField,
         _startDateInputField,
@@ -191,7 +229,7 @@ class CreateTaskDialogRenderer {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         _nameInputField,
-        _typeInputField,
+        createTypeInputField("trans"),
         _startTimeInputField,
         _durationInputField,
         _dateInputField
@@ -202,7 +240,7 @@ class CreateTaskDialogRenderer {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("New Recurring Task:"),
+          title: Text("New Transient Task:"),
           content: _reccuringTaskDataFields,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -244,7 +282,7 @@ class CreateTaskDialogRenderer {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         _nameInputField,
-        _typeInputField,
+        createTypeInputField("anti"),
         _startTimeInputField,
         _durationInputField,
         _dateInputField
@@ -255,7 +293,7 @@ class CreateTaskDialogRenderer {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("New Recurring Task:"),
+          title: Text("New Anti Task:"),
           content: _reccuringTaskDataFields,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
