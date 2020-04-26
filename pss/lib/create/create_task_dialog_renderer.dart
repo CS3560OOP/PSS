@@ -33,29 +33,28 @@ class CreateTaskDialogRenderer {
     } else if (typeOfTask.compareTo("recur") == 0) {
       taskTypes = recurTaskTypes;
     }
-
     return FormField<String>(builder: (FormFieldState<String> state) {
+      _typeTextController.text =
+          _typeTextController.text.isEmpty ? "Class" : _typeTextController.text;
       return InputDecorator(
-        decoration: InputDecoration(
-          labelText: 'Type',
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton(
-          isDense: true,
-          onChanged: (String type) {
-            //SetState function here
-            //not sure if it is possible to manually set the text field of a controller
-            _typeTextController.text = type;
-          },
-          items: taskTypes.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
+          decoration: InputDecoration(
+            labelText: 'Type',
+          ),
+          child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+            isDense: true,
+            onChanged: (String type) {
+              //not sure if it is possible to manually set the text field of a controller
+              _typeTextController.text = type;
+            },
+            value: _typeTextController.text,
+            items: taskTypes.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
             }).toList(),
-          )
-        )
-      );
+          )));
     });
   }
 

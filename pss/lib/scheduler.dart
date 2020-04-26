@@ -57,7 +57,7 @@ class Scheduler {
     //read the json string from a file
     var jsonString = await fileIO.readData(fileName);
     //convert the jsonString to tasks in the schedule
-    var schedule = jsonDecode(jsonString);
+    //var schedule = jsonDecode(jsonString);
     //print(schedule);
   }
 

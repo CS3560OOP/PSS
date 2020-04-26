@@ -80,7 +80,7 @@ class Date {
 
   bool isLastDayOfMonth() {
     var d = this.getDay();
-    var last = this.getLastDateOfMonth(this).getDay();
+    var last = this.getLastDateOfMonth().getDay();
     if (d == last)
       return true;
     else
@@ -96,7 +96,7 @@ class Date {
       return false;
   }
 
-  Date getLastDateOfMonth(Date date) {
+  Date getLastDateOfMonth() {
     var y = this.getYear().toString().padLeft(4, "0");
     var m = this.getMonth().toString().padLeft(2, "0");
     var d;

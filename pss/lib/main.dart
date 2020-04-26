@@ -5,6 +5,7 @@ import 'task.dart';
 import 'create/create_task_dialog_renderer.dart';
 import 'constants.dart';
 import 'date.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 void main() => runApp(MyApp());
 
@@ -32,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Scheduler scheduler;
   List<TaskCard> taskList;
   List sched;
+  CalendarController _calendarController;
 
   CreateTaskDialogRenderer createTaskDialog;
   @override
@@ -42,6 +44,15 @@ class _MyHomePageState extends State<MyHomePage> {
     createTaskDialog = new CreateTaskDialogRenderer(context);
     this.sched = scheduler.getSchedule();
     this.taskList = this.sched.map((item) => new TaskCard(item)).toList();
+
+    // calendar object
+    this._calendarController = CalendarController();
+  }
+
+  @override
+  void dispose() {
+    _calendarController.dispose();
+    super.dispose();
   }
 
   // generate task cards
@@ -83,14 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: ListView(children: [
-        Center(
-          child: Text(
-            Date(20210113).getNextDay().getIntDate().toString(),
-          ),
+        child: TableCalendar(
+          calendarController: _calendarController,
         ),
-        ...this.taskList,
-      ])),
+      ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => createTaskDialog.showTaskTypesDialogBox(
