@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pss/recurring_task.dart';
+import 'package:pss/transient_task.dart';
 import 'package:pss/validator.dart';
 import 'package:pss/date.dart';
 
@@ -48,5 +50,34 @@ main() {
       };
       expect(validator.isValidTask(task), true);
     });
+  });
+
+  test("hasNoTimeConflict() testing new Transient task : value should be true",
+      () {
+    // start = 1:00, end = 3:30
+    final newTask = new TransientTask(
+        "Intern Interview", "Appointment", 13.0, 2.5, Date(20200429));
+    var potentialConflictList = [
+      {"StartTime": 10.0, "EndTime": 12.0},
+      {"StartTime": 12.0, "EndTime": 13.0},
+      {"StartTime": 16.5, "EndTime": 19.5},
+      {"StartTime": 20.5, "EndTime": 22.0},
+    ].toList();
+    expect(Validator().hasNoTimeConflict(potentialConflictList, newTask), true);
+  });
+
+  test("hasNoTimeConflict() testing new Transient task : value should be false",
+      () {
+    // start = 1:00, end = 3:30
+    final newTask = new TransientTask(
+        "Intern Interview", "Appointment", 13.0, 2.5, Date(20200429));
+    var potentialConflictList = [
+      {"StartTime": 10.0, "EndTime": 12.0},
+      {"StartTime": 12.0, "EndTime": 14.0},
+      {"StartTime": 16.5, "EndTime": 19.5},
+      {"StartTime": 20.5, "EndTime": 22.0},
+    ].toList();
+    expect(
+        Validator().hasNoTimeConflict(potentialConflictList, newTask), false);
   });
 }

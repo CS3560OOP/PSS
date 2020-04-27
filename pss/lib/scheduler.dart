@@ -78,9 +78,12 @@ class Scheduler {
   /// Create a task
   /// Appends new task to global task list
   void createTask(Map<String, Object> data) {
+    final validator = Validator();
     var newTask = TaskGenerator().generateTask(data);
-    if (Validator().isValidTask(data) ||
-        Validator().isTimeAvailable(this._schedule, newTask)) {
+    var potentialConflicts =
+        validator.getPotentialConflicts(this.getSchedule(), newTask);
+    if (validator.isValidTask(data) &&
+        validator.hasNoTimeConflict(potentialConflicts, newTask)) {
       /// check if Date and Time is available
       this._schedule.add(newTask);
     } else {
