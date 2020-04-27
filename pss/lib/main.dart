@@ -93,10 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: TableCalendar(
-          calendarController: _calendarController,
-        ),
+      body: TableCalendar(
+        calendarController: _calendarController,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),

@@ -60,10 +60,10 @@ main() {
       expect(res, 11);
     });
 
-    // test("getNextDay() value should be 20200102", () {
-    //   var date = Date(20200101);
-    //   expect(date.getNextDay().getIntDate(), 20200102);
-    // });
+    test("getNextDay() value should be 20200102", () {
+      var date = Date(20200101);
+      expect(date.getNextDay().getIntDate(), 20200102);
+    });
 
     test("at last day of the year : getNextDay() value should be 20210101", () {
       var date = new Date(20201231);
@@ -77,13 +77,13 @@ main() {
 
     test("Leap Year : getLastDateOfMonth() should return 20200229", () {
       var date = new Date(20200205);
-      expect(date.getLastDateOfMonth(date).getIntDate(), 20200229);
+      expect(date.getLastDateOfMonth().getIntDate(), 20200229);
     });
 
     test("NOT Leap year : getLastDateOfMonth() value should be 20210228", () {
       var date = Date(20210201);
 
-      expect(date.getLastDateOfMonth(date).getIntDate(), 20210228);
+      expect(date.getLastDateOfMonth().getIntDate(), 20210228);
     });
 
     test("isLastDayOfMonth() value should be true", () {

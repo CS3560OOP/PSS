@@ -13,50 +13,15 @@ class CreateTaskDialogRenderer {
   static final _frequencyTextController = new TextEditingController();
   static final _dateTextController = new TextEditingController();
   String typeValue = '';
-
   BuildContext context;
+
   CreateTaskDialogRenderer(this.context);
+
   var _nameInputField = new TextFormField(
     controller: _nameTextController,
     keyboardType: TextInputType.text,
     decoration: InputDecoration(labelText: "Name"),
   );
-
-  //Creates a dropdown item that displays correctly but is currently non functional
-  //because normally the onchanged function would call setState() but that method is not visible from here
-  Widget createTypeInputField(String typeOfTask) {
-    List<String> taskTypes = new List<String>();
-    if (typeOfTask.compareTo("anti") == 0) {
-      taskTypes = antiTaskTypes;
-    } else if (typeOfTask.compareTo("trans") == 0) {
-      taskTypes = transTaskTypes;
-    } else if (typeOfTask.compareTo("recur") == 0) {
-      taskTypes = recurTaskTypes;
-    }
-    return FormField<String>(builder: (FormFieldState<String> state) {
-      _typeTextController.text =
-          _typeTextController.text.isEmpty ? "Class" : _typeTextController.text;
-      return InputDecorator(
-          decoration: InputDecoration(
-            labelText: 'Type',
-          ),
-          child: DropdownButtonHideUnderline(
-              child: DropdownButton(
-            isDense: true,
-            onChanged: (String type) {
-              //not sure if it is possible to manually set the text field of a controller
-              _typeTextController.text = type;
-            },
-            value: _typeTextController.text,
-            items: taskTypes.map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          )));
-    });
-  }
 
   // TODO: turn into dropdown??
   var _typeInputField = new TextFormField(
@@ -114,6 +79,46 @@ class CreateTaskDialogRenderer {
     _endDateTextController.clear();
     _frequencyTextController.clear();
     _dateTextController.clear();
+  }
+
+//Creates a dropdown item that displays correctly but is currently non functional
+  //because normally the onchanged function would call setState() but that method is not visible from here
+  Widget createTypeInputField(String typeOfTask) {
+    List<String> taskTypes = new List<String>();
+    if (typeOfTask.compareTo("anti") == 0) {
+      taskTypes = antiTaskTypes;
+    } else if (typeOfTask.compareTo("trans") == 0) {
+      taskTypes = transTaskTypes;
+    } else if (typeOfTask.compareTo("recur") == 0) {
+      taskTypes = recurTaskTypes;
+    }
+    return StatefulBuilder(
+      builder: (BuildContext context, setState) {
+        return FormField<String>(builder: (FormFieldState<String> state) {
+          _typeTextController.text = _typeTextController.text.isEmpty
+              ? "Class"
+              : _typeTextController.text;
+          return InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Type',
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                  value: _typeTextController.text,
+                  isDense: true,
+                  items: taskTypes.map((String value) {
+                    return DropdownMenuItem<String>(
+                        value: value, child: Text(value));
+                  }).toList(),
+                  onChanged: (String type) {
+                    //not sure if it is possible to manually set the text field of a controller
+                    setState(() => _typeTextController.text = type);
+                  }),
+            ),
+          );
+        });
+      },
+    );
   }
 
   void showTaskTypesDialogBox(
