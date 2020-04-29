@@ -143,29 +143,34 @@ class Validator {
   /// this function will then check time conflicts
   /// if not time conflicts, returns true, false otherwise
   bool hasNoTimeOverlap(List sched, Task newTask) {
-    bool noConflict = true;
+    bool noOverlap = true;
     double start = newTask.getStartTime();
     double end = start + newTask.getDuration();
     List conflictList = getDateOverlaps(sched, newTask);
 
     if (conflictList.isEmpty) {
-      noConflict = true;
+      noOverlap = true;
     } else if (newTask is TransientTask) {
       for (var t in conflictList) {
+        // existing task times
         double tStart = t["StartTime"];
         double tEnd = t["EndTime"];
         if (start >= tEnd || end <= tStart) {
-          noConflict = true;
+          noOverlap = true;
         } else {
           return false;
         }
       }
     } else if (newTask is AntiTask) {
+      /// Overlap for an antitask
+      /// means both start and end times
+      /// are the equal
       for (var t in conflictList) {
+        // existing task times
         double tStart = t["StartTime"];
         double tEnd = t["EndTime"];
-        if (start == tEnd || end == tStart) {
-          noConflict = true;
+        if (start != tStart || end != tEnd) {
+          noOverlap = true;
         } else {
           return false;
         }
@@ -173,8 +178,7 @@ class Validator {
     } else if (newTask is RecurringTask) {
       // TODO: need to implement
     }
-
-    return noConflict;
+    return noOverlap;
   }
 
   /// Returns a list of all potential task
