@@ -1,3 +1,5 @@
+import 'package:pss/transient_task.dart';
+
 import 'fileHandler.dart';
 import 'recurring_task.dart';
 import 'task.dart';
@@ -14,9 +16,7 @@ class Scheduler {
   //class properties
   List<Task> _schedule;
   FileHandler fileIO;
-
-  // TEST DATA ONLY
-  var tasks = [...data.TestData.customSet].toList();
+  Validator validator;
 
   //constructor
   Scheduler() {
@@ -25,11 +25,13 @@ class Scheduler {
     //create the fileHandler object
     fileIO = new FileHandler();
 
+    validator = new Validator();
+
     //testing
     print(_schedule ?? "0");
     RecurringTask temp2 = new RecurringTask(
         "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
-    createSchedule();
+    setSchedule([...data.TestData.customSet].toList());
     _schedule.add(temp2);
 
     writeToFile("test.json");
@@ -47,7 +49,7 @@ class Scheduler {
     // jsonString += jsonEncode(temp);
     //
     jsonString += "]";
-    print(jsonString);
+    //print(jsonString);
     //write that string to a file
     fileIO.writeData(jsonString, fileName);
   }
@@ -62,10 +64,10 @@ class Scheduler {
   }
 
   /// Returns processed schedule
-  void createSchedule() {
-    this._schedule = this.tasks.map((item) {
+  void setSchedule(List<Map<String, Object>> tasks) {
+    this._schedule = tasks.map((item) {
       Task t;
-      if (Validator().isValidTask(item))
+      if (validator.isValidTask(this.getSchedule(), item))
         t = TaskGenerator().generateTask(item);
       else
         throw Exception("Invalid Schedule");
@@ -78,16 +80,25 @@ class Scheduler {
   /// Create a task
   /// Appends new task to global task list
   void createTask(Map<String, Object> data) {
-    final validator = Validator();
     var newTask = TaskGenerator().generateTask(data);
-    var potentialConflicts =
-        validator.getPotentialConflicts(this.getSchedule(), newTask);
-    if (validator.isValidTask(data) &&
-        validator.hasNoTimeConflict(potentialConflicts, newTask)) {
-      /// check if Date and Time is available
-      this._schedule.add(newTask);
+    List sched = this.getSchedule();
+    if (validator.isValidTask(sched, data)) {
+      if (newTask is TransientTask) {
+        if (validator.hasNoTimeOverlap(sched, newTask)) {
+          this._schedule.add(newTask);
+        }
+      } else if (newTask is AntiTask) {
+        // must have overlap to be added
+        if (!validator.hasNoTimeOverlap(sched, newTask)) {
+          this._schedule.add(newTask);
+        }
+      } else if (newTask is RecurringTask) {
+        // TODO:
+      } else {
+        throw Exception("Error: Task Cannot be created");
+      }
     } else {
-      throw Exception("Error: Invalid Task format!");
+      throw Exception("Error: Invalid Format!");
     }
   }
 

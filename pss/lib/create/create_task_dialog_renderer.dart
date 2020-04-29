@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pss/components/dialog_button.dart';
-import 'package:pss/constants.dart';
+import '../constants.dart';
 
 /// This class renders dialog boxes for creating tasks
 class CreateTaskDialogRenderer {
@@ -23,12 +23,47 @@ class CreateTaskDialogRenderer {
     decoration: InputDecoration(labelText: "Name"),
   );
 
-  // TODO: turn into dropdown??
-  var _typeInputField = new TextFormField(
-    controller: _typeTextController,
-    keyboardType: TextInputType.text,
-    decoration: InputDecoration(labelText: "Type"),
-  );
+  Widget createTypeInputField(String typeOfTask) {
+    List<String> taskTypes = new List<String>();
+    if (typeOfTask.compareTo("anti") == 0) {
+      taskTypes = kAntiTaskTypes;
+    } else if (typeOfTask.compareTo("trans") == 0) {
+      taskTypes = kTransTaskTypes;
+    } else {
+      taskTypes = kRecurTaskTypes;
+    }
+
+    if (typeOfTask == "anti")
+      _typeTextController.text = "Cancellation";
+    else if (typeOfTask == "trans")
+      _typeTextController.text = "Appointment";
+    else
+      _typeTextController.text = "Class";
+
+    return StatefulBuilder(
+      builder: (BuildContext context, setState) {
+        return FormField<String>(builder: (FormFieldState<String> state) {
+          return InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Type',
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                  value: _typeTextController.text,
+                  isDense: true,
+                  items: taskTypes.map((String value) {
+                    return DropdownMenuItem<String>(
+                        value: value, child: Text(value));
+                  }).toList(),
+                  onChanged: (String type) {
+                    setState(() => _typeTextController.text = type);
+                  }),
+            ),
+          );
+        });
+      },
+    );
+  }
 
   var _startDateInputField = new TextFormField(
     controller: _startDateTextController,
@@ -46,7 +81,7 @@ class CreateTaskDialogRenderer {
   var _dateInputField = new TextFormField(
     controller: _dateTextController,
     keyboardType: TextInputType.number,
-    decoration: InputDecoration(labelText: "End Date", helperText: "YYYYMMDD"),
+    decoration: InputDecoration(labelText: "Date", helperText: "YYYYMMDD"),
   );
 
   var _startTimeInputField = new TextFormField(
@@ -63,12 +98,40 @@ class CreateTaskDialogRenderer {
         labelText: "Duration", helperText: "i.e. 1.75 = 1 hr 45 min"),
   );
 
-// TODO: turn into dropdown??
-  var _frequencyInputField = new TextFormField(
-    controller: _frequencyTextController,
-    keyboardType: TextInputType.number,
-    decoration: InputDecoration(labelText: "Frequency"),
-  );
+  Widget _frequencyDropdown() {
+    String selectedValue = "Daily";
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return FormField<String>(builder: (FormFieldState<String> state) {
+          return InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Frequency',
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                  value: selectedValue,
+                  isDense: true,
+                  items: kFrequencyOptions.map((value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val == "Daily")
+                      _frequencyTextController.text = "1";
+                    else if (val == "Weekly")
+                      _frequencyTextController.text = "7";
+                    else
+                      _frequencyTextController.text = "30";
+                    setState(() => selectedValue = val);
+                  }),
+            ),
+          );
+        });
+      },
+    );
+  }
 
   void clearFields() {
     _nameTextController.clear();
@@ -79,46 +142,6 @@ class CreateTaskDialogRenderer {
     _endDateTextController.clear();
     _frequencyTextController.clear();
     _dateTextController.clear();
-  }
-
-//Creates a dropdown item that displays correctly but is currently non functional
-  //because normally the onchanged function would call setState() but that method is not visible from here
-  Widget createTypeInputField(String typeOfTask) {
-    List<String> taskTypes = new List<String>();
-    if (typeOfTask.compareTo("anti") == 0) {
-      taskTypes = antiTaskTypes;
-    } else if (typeOfTask.compareTo("trans") == 0) {
-      taskTypes = transTaskTypes;
-    } else if (typeOfTask.compareTo("recur") == 0) {
-      taskTypes = recurTaskTypes;
-    }
-    return StatefulBuilder(
-      builder: (BuildContext context, setState) {
-        return FormField<String>(builder: (FormFieldState<String> state) {
-          _typeTextController.text = _typeTextController.text.isEmpty
-              ? "Class"
-              : _typeTextController.text;
-          return InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'Type',
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton(
-                  value: _typeTextController.text,
-                  isDense: true,
-                  items: taskTypes.map((String value) {
-                    return DropdownMenuItem<String>(
-                        value: value, child: Text(value));
-                  }).toList(),
-                  onChanged: (String type) {
-                    //not sure if it is possible to manually set the text field of a controller
-                    setState(() => _typeTextController.text = type);
-                  }),
-            ),
-          );
-        });
-      },
-    );
   }
 
   void showTaskTypesDialogBox(
@@ -163,7 +186,7 @@ class CreateTaskDialogRenderer {
     );
   }
 
-  Future<Map> showAddRecurringTaskDialog() async {
+  Future<Map> getNewRecurringTaskData() async {
     // _nameTextController.text = "Fix this";
     // _typeTextController.text = "Class";
     // _startTimeTextController.text = "11.75";
@@ -181,7 +204,7 @@ class CreateTaskDialogRenderer {
         _durationInputField,
         _startDateInputField,
         _endDateInputField,
-        _frequencyInputField
+        _frequencyDropdown()
       ],
     );
     return await showDialog<Map>(
@@ -223,12 +246,13 @@ class CreateTaskDialogRenderer {
     );
   }
 
-  Future<Map> showAddTransientTaskDialog() async {
+  Future<Map> getNewTransientTaskData() async {
     // _nameTextController.text = "Fix this";
     // _typeTextController.text = "Visit";
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
+
     final _reccuringTaskDataFields = Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -275,9 +299,9 @@ class CreateTaskDialogRenderer {
     );
   }
 
-  Future<Map> showAddAntiTaskDialog() async {
+  Future<Map> getNewAntiTaskData() async {
     // _nameTextController.text = "Fix this";
-    _typeTextController.text = "Cancellation";
+    // _typeTextController.text = "Cancellation";
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";

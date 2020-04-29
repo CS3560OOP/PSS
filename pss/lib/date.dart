@@ -1,5 +1,4 @@
 import 'package:intl/intl.dart';
-import 'validator.dart';
 
 class Date {
   int _year;
@@ -96,6 +95,7 @@ class Date {
       return false;
   }
 
+  /// returns the last day of the month
   Date getLastDateOfMonth() {
     var y = this.getYear().toString().padLeft(4, "0");
     var m = this.getMonth().toString().padLeft(2, "0");
@@ -113,5 +113,41 @@ class Date {
     }
     d = d.toString().padLeft(2, "0");
     return new Date(int.parse("$y$m$d"));
+  }
+
+  /// returns the first date of the month
+  Date getFirstDateOfMonth() {
+    var y = this.getYear().toString().padLeft(4, "0");
+    var m = this.getMonth().toString().padLeft(2, "0");
+    var d = "01";
+    return new Date(int.parse("$y$m$d"));
+  }
+
+  /// returns the first day of this week
+  Date getFirstDateOfWeek() {
+    var date = new Date(this.getIntDate());
+    if (this.getDay() <= 7)
+      date.setDay(1);
+    else if (this.getDay() <= 14)
+      date.setDay(8);
+    else if (this.getDay() <= 21)
+      date.setDay(15);
+    else
+      date.setDay(22);
+    return date;
+  }
+
+  /// returns the first day of this week
+  Date getLastDayOfWeek() {
+    var date = new Date(this.getIntDate());
+    if (this.getDay() <= 7)
+      date.setDay(7);
+    else if (this.getDay() <= 14)
+      date.setDay(14);
+    else if (this.getDay() <= 21)
+      date.setDay(21);
+    else
+      date = getLastDateOfMonth();
+    return date;
   }
 }

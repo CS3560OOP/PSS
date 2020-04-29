@@ -4,7 +4,7 @@ const kAntiTaskColor = Colors.redAccent;
 const kTransientTaskColor = Colors.greenAccent;
 const kRecurringTaskColor = Colors.amberAccent;
 
-const recurTaskTypes = [
+const List<String> kRecurTaskTypes = [
   "Class",
   "Study",
   "Sleep",
@@ -13,12 +13,14 @@ const recurTaskTypes = [
   "Meal",
 ];
 
-const transTaskTypes = [
+const List<String> kTransTaskTypes = [
   "Visit",
   "Shopping",
   "Appointment",
 ];
 
-const antiTaskTypes = [
+const List<String> kAntiTaskTypes = [
   "Cancellation",
 ];
+
+const List<String> kFrequencyOptions = ["Daily", "Weekly", "Monthly"];
