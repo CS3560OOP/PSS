@@ -64,7 +64,11 @@ main() {
           "EndDate": 20200505,
           "Frequency": 7
         };
-        expect(validator.isValidTask(sched, task), true);
+
+        try {
+          validator.validateTask(sched, task);
+          expect(() => validator.validateTask(sched, task), returnsNormally);
+        } catch (e) {}
       });
       test("isValidTask() invalid name : value should be FALSE", () {
         final task = {
@@ -76,7 +80,12 @@ main() {
           "EndDate": 20200505,
           "Frequency": 7
         };
-        expect(validator.isValidTask(sched, task), false);
+
+        try {
+          validator.validateTask(sched, task);
+        } catch (e) {
+          expect(e.toString(), "Exception: Task already exists");
+        }
       });
     });
 

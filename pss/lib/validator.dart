@@ -37,7 +37,7 @@ class Validator {
       var type = task["Type"];
 
       if (!isValidTaskName(sched, task["Name"])) {
-        throw Exception("Task name already exists");
+        throw Exception("Task already exists");
       }
 
       if (!isValidTaskTime(task["StartTime"])) {
