@@ -196,18 +196,19 @@ class DialogRenderer {
     // _frequencyTextController.text = "7";
 
     final _reccuringTaskDataFields = SingleChildScrollView(
-        child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        _nameInputField,
-        createTypeInputField("recur"),
-        _startTimeInputField,
-        _durationInputField,
-        _startDateInputField,
-        _endDateInputField,
-        _frequencyDropdown()
-      ],
-    ));
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _nameInputField,
+          createTypeInputField("recur"),
+          _startTimeInputField,
+          _durationInputField,
+          _startDateInputField,
+          _endDateInputField,
+          _frequencyDropdown()
+        ],
+      ),
+    );
     return await showDialog<Map>(
       context: context,
       barrierDismissible: true,
@@ -285,16 +286,25 @@ class DialogRenderer {
             new DialogButton(
                 label: "Add",
                 onPressed: () {
-                  Navigator.pop(context, {
-                    "Name": _nameTextController.text.trim(),
-                    "Type": _typeTextController.text.trim(),
-                    "StartTime":
-                        double.parse(_startTimeTextController.text.trim()),
-                    "Duration":
-                        double.parse(_durationTextController.text.trim()),
-                    "Date": int.parse(_dateTextController.text.trim()),
-                  });
-                  clearFields();
+                  if (_nameTextController.text.isNotEmpty &&
+                      _typeTextController.text.isNotEmpty &&
+                      _startTimeTextController.text.isNotEmpty &&
+                      _durationTextController.text.isNotEmpty &&
+                      _dateTextController.text.isNotEmpty) {
+                    Navigator.pop(context, {
+                      "Name": _nameTextController.text.trim(),
+                      "Type": _typeTextController.text.trim(),
+                      "StartTime":
+                          double.parse(_startTimeTextController.text.trim()),
+                      "Duration":
+                          double.parse(_durationTextController.text.trim()),
+                      "Date": int.parse(_dateTextController.text.trim()),
+                    });
+                    clearFields();
+                  } else {
+                    print("Error");
+                    showErrorDialog("Please complete form!");
+                  }
                 }),
           ],
         );
@@ -308,7 +318,6 @@ class DialogRenderer {
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
-
     final _reccuringTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -350,6 +359,29 @@ class DialogRenderer {
                     "Date": int.parse(_dateTextController.text.trim()),
                   });
                   clearFields();
+                }),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Map> showErrorDialog(String msg) async {
+    return await showDialog<Map>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error! Cannot Add Task."),
+          content: Text("$msg"),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
+          actions: <Widget>[
+            new DialogButton(
+                label: "Cancel",
+                onPressed: () {
+                  Navigator.of(context).pop();
                 }),
           ],
         );

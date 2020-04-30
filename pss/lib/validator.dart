@@ -31,10 +31,8 @@ class Validator {
   /// DATE VALIDATORS ***************************************************************
 
   /// TASK FORMAT VALIDATORS *********************************************************
-  bool isValidTask(List sched, Map<String, Object> task) {
+  void validateTask(List sched, Map<String, Object> task) {
     final matcher = new TypeMatcher();
-    bool isValid = false;
-
     try {
       var type = task["Type"];
 
@@ -73,12 +71,9 @@ class Validator {
           throw Exception("Invalid Date");
         }
       }
-      isValid = true;
     } catch (e) {
-      print("Invalid task: $e");
-      isValid = false;
+      throw e;
     }
-    return isValid;
   }
 
   /// checks to see if name of new task
@@ -94,7 +89,6 @@ class Validator {
 
   bool isValidTaskTime(dynamic t) {
     double time;
-
     try {
       time = double.parse(t.toString());
       // check if input is parsable to double

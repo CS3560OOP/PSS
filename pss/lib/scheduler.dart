@@ -66,10 +66,12 @@ class Scheduler {
   void setSchedule(List<Map<String, Object>> tasks) {
     this._schedule = tasks.map((item) {
       Task t;
-      if (validator.isValidTask(this.getSchedule(), item))
+      try {
+        validator.validateTask(this.getSchedule(), item);
         t = TaskGenerator().generateTask(item);
-      else
-        throw Exception("Invalid Schedule");
+      } catch (e) {
+        throw e;
+      }
       return t;
     }).toList();
   }
@@ -80,8 +82,11 @@ class Scheduler {
   /// Appends new task to global task list
   void createTask(Map<String, Object> data) {
     var newTask = TaskGenerator().generateTask(data);
+
     List sched = this.getSchedule();
-    if (validator.isValidTask(sched, data)) {
+
+    try {
+      validator.validateTask(sched, data);
       if (newTask is TransientTask) {
         if (validator.hasNoTimeOverlap(sched, newTask)) {
           this._schedule.add(newTask);
@@ -92,12 +97,12 @@ class Scheduler {
           this._schedule.add(newTask);
         }
       } else if (newTask is RecurringTask) {
-        // TODO:
+        // TODO: need to implement
       } else {
         throw Exception("Error: Task Cannot be created");
       }
-    } else {
-      throw Exception("Error: Invalid Format!");
+    } catch (e) {
+      throw e;
     }
   }
 

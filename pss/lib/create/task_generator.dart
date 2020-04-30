@@ -12,14 +12,17 @@ import '../type_matcher.dart';
 class TaskGenerator {
   Task generateTask(Map<String, Object> task) {
     final matcher = TypeMatcher();
-    if (matcher.getType(task["Type"]) == "Recurring")
-      return _generateRecurringTask(task);
-    else if (matcher.getType(task["Type"]) == "Transient")
-      return _generateTransientTask(task);
-    else if (matcher.getType(task["Type"]) == "AntiTask")
-      return _generateAntiTask(task);
-    else {
-      throw Exception("No matching task type found!");
+    if (task != null) {
+      if (matcher.getType(task["Type"]) == "Recurring")
+        return _generateRecurringTask(task);
+      else if (matcher.getType(task["Type"]) == "Transient")
+        return _generateTransientTask(task);
+      else if (matcher.getType(task["Type"]) == "AntiTask")
+        return _generateAntiTask(task);
+      else
+        throw Exception("No matching task type found!");
+    } else {
+      throw Exception("Need more information to create task.");
     }
   }
 

@@ -82,8 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       _updateState();
     } catch (e) {
-      // TODO: show error dialog
-      print("Error: $e");
+      createTaskDialog.showErrorDialog(e.toString());
     }
   }
 
