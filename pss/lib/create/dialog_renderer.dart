@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pss/components/dialog_button.dart';
 import '../constants.dart';
+import 'package:flutter/material.dart';
 
 /// This class renders dialog boxes for creating tasks
-class CreateTaskDialogRenderer {
+class DialogRenderer {
   static final _nameTextController = new TextEditingController();
   static final _typeTextController = new TextEditingController();
   static final _startDateTextController = new TextEditingController();
@@ -15,7 +16,7 @@ class CreateTaskDialogRenderer {
   String typeValue = '';
   BuildContext context;
 
-  CreateTaskDialogRenderer(this.context);
+  DialogRenderer(this.context);
 
   var _nameInputField = new TextFormField(
     controller: _nameTextController,
@@ -144,8 +145,7 @@ class CreateTaskDialogRenderer {
     _dateTextController.clear();
   }
 
-  void showTaskTypesDialogBox(
-      Function addRecurring, Function addTransient, Function addAntiTask) {
+  void showTaskTypesDialogBox(Function createTask) {
     showDialog<Map>(
       context: context,
       barrierDismissible: true,
@@ -160,21 +160,21 @@ class CreateTaskDialogRenderer {
                   child: Text("Recurring"),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    addRecurring();
+                    createTask("recur");
                   }),
               RaisedButton(
                   color: kTransientTaskColor,
                   child: Text("Transient"),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    addTransient();
+                    createTask("trans");
                   }),
               RaisedButton(
                   color: kAntiTaskColor,
                   child: Text("AntiTask"),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    addAntiTask();
+                    createTask("anti");
                   })
             ],
           ),
@@ -195,7 +195,8 @@ class CreateTaskDialogRenderer {
     // _endDateTextController.text = "20200224";
     // _frequencyTextController.text = "7";
 
-    final _reccuringTaskDataFields = Column(
+    final _reccuringTaskDataFields = SingleChildScrollView(
+        child: Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         _nameInputField,
@@ -206,7 +207,7 @@ class CreateTaskDialogRenderer {
         _endDateInputField,
         _frequencyDropdown()
       ],
-    );
+    ));
     return await showDialog<Map>(
       context: context,
       barrierDismissible: true,
@@ -253,15 +254,17 @@ class CreateTaskDialogRenderer {
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
 
-    final _reccuringTaskDataFields = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        _nameInputField,
-        createTypeInputField("trans"),
-        _startTimeInputField,
-        _durationInputField,
-        _dateInputField
-      ],
+    final _reccuringTaskDataFields = SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _nameInputField,
+          createTypeInputField("trans"),
+          _startTimeInputField,
+          _durationInputField,
+          _dateInputField
+        ],
+      ),
     );
     return await showDialog<Map>(
       context: context,
@@ -306,15 +309,17 @@ class CreateTaskDialogRenderer {
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
 
-    final _reccuringTaskDataFields = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        _nameInputField,
-        createTypeInputField("anti"),
-        _startTimeInputField,
-        _durationInputField,
-        _dateInputField
-      ],
+    final _reccuringTaskDataFields = SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _nameInputField,
+          createTypeInputField("anti"),
+          _startTimeInputField,
+          _durationInputField,
+          _dateInputField
+        ],
+      ),
     );
     return await showDialog<Map>(
       context: context,

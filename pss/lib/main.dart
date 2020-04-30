@@ -5,7 +5,7 @@ import 'package:pss/transient_task.dart';
 import 'scheduler.dart';
 import 'components/task_card.dart';
 import 'task.dart';
-import 'create/create_task_dialog_renderer.dart';
+import 'create/dialog_renderer.dart';
 import 'constants.dart';
 import 'date.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -39,13 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
   CalendarController _calendarController;
   Map<DateTime, List> _events; // list of events on a certain day
 
-  CreateTaskDialogRenderer createTaskDialog;
+  DialogRenderer createTaskDialog;
   @override
   void initState() {
     super.initState();
     //initialize data for page
     scheduler = new Scheduler();
-    createTaskDialog = new CreateTaskDialogRenderer(context);
+    createTaskDialog = new DialogRenderer(context);
 
     // calendar object
     this._calendarController = CalendarController();
@@ -67,12 +67,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _createTransientTask() async {
+  void _createTask(String type) async {
     try {
+      var data;
       // get input from user
-      var data = await createTaskDialog.getNewTransientTaskData();
-      // create task
+      if (type == "recur")
+        data = await createTaskDialog.getNewRecurringTaskData();
+      else if (type == "anti")
+        data = await createTaskDialog.getNewAntiTaskData();
+      else
+        data = await createTaskDialog.getNewTransientTaskData();
+
       scheduler.createTask(data);
+
       _updateState();
     } catch (e) {
       // TODO: show error dialog
@@ -80,47 +87,28 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _createRecurringTask() async {
-    try {
-      // get input from user
-      var data = await createTaskDialog.getNewRecurringTaskData();
-      // create task
-      scheduler.createTask(data);
-      _updateState();
-    } catch (e) {
-      // TODO: show error dialog
-      print("Error: $e");
-    }
+  /// Fetch all events for the week
+  /// where given day belongs
+  List _fetchDayEvents(Date d) {
+    return this.sched;
   }
 
-  void _createAntiTask() async {
-    try {
-      // get input from user
-      var data = await createTaskDialog.getNewAntiTaskData();
-      // create task
-      scheduler.createTask(data);
-      _updateState();
-    } catch (e) {
-      // TODO: show error dialog
-      print("Error: $e");
-    }
+  /// Fetch all events in which this
+  List _fetchWeekEvents(Date d) {
+    Date start = d.getFirstDateOfWeek();
+    Date end = d.getLastDayOfWeek();
+    // TODO
+    return this.sched;
   }
 
-  // void _populateCalendar() {
-  //   this.sched = scheduler.getSchedule();
-  //   this.taskList = sched.map((item) => new TaskCard(item)).toList();
-  //   sched.forEach((event) {
-  //     print("\nname : " + event.getName());
-  //     print("type : " + event.getType());
-  //     print("time : " + event.getStartTime().toString());
-  //     if (event is RecurringTask) {
-  //       print("Start Date : " + event.getStartDate().getFormattedDate());
-  //       print("End Date : " + event.getEndDate().getFormattedDate() + "\n\n");
-  //     } else {
-  //       print("Date : " + event.getDate().getFormattedDate() + "\n\n");
-  //     }
-  //   });
-  // }
+  /// Fetch all events for the month
+  /// where the day day belongs
+  List _fetchMonthEvents(Date d) {
+    Date start = d.getFirstDateOfMonth();
+    Date end = d.getLastDateOfMonth();
+    // TODO
+    return this.sched;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,11 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => createTaskDialog.showTaskTypesDialogBox(
-          () => _createRecurringTask(),
-          () => _createTransientTask(),
-          () => _createAntiTask(),
-        ),
+        onPressed: () => createTaskDialog.showTaskTypesDialogBox(_createTask),
       ),
     );
   }
@@ -230,28 +214,5 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     }
-  }
-
-  /// Fetch all events for the week
-  /// where given day belongs
-  List _fetchDayEvents(Date d) {
-    return this.sched;
-  }
-
-  /// Fetch all events in which this
-  List _fetchWeekEvents(Date d) {
-    Date start = d.getFirstDateOfWeek();
-    Date end = d.getLastDayOfWeek();
-    // TODO
-    return this.sched;
-  }
-
-  /// Fetch all events for the month
-  /// where the day day belongs
-  List _fetchMonthEvents(Date d) {
-    Date start = d.getFirstDateOfMonth();
-    Date end = d.getLastDateOfMonth();
-    // TODO
-    return this.sched;
   }
 }

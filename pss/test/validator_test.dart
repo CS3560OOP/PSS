@@ -164,7 +164,7 @@ main() {
       });
 
       test(
-          "hasNoTimeOverlap() add new Transient task with conflict recurring task : value should be FALSE",
+          "add Transient task with conflict recurring task : value should be FALSE",
           () {
         final newTask = new TransientTask(
             "Intern Interview", "Appointment", 13.0, 2.5, Date(newTaskDate));
@@ -178,7 +178,8 @@ main() {
         expect(Validator().hasNoTimeOverlap(sched, newTask), false);
       });
 
-      test("adding new Anti task : value should be FALSE", () {
+      test("adding new Anti task no match Recur task: value should be FALSE",
+          () {
         // start = 1:00, end = 3:30
         final newTask = new AntiTask(
             "Cancel Dinner", "Cancellation", 10.0, 1.0, Date(newTaskDate));
@@ -186,7 +187,7 @@ main() {
       });
 
       test(
-          "adding new Anti task with no matching recurring task : value should be TRUE",
+          "adding new Anti task, no matching recurring task : value should be TRUE",
           () {
         // start = 1:00, end = 3:30
         final newTask =
