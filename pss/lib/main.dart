@@ -67,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  /// CREATE
   void _createTask(String type) async {
     try {
       var data;
@@ -79,13 +80,13 @@ class _MyHomePageState extends State<MyHomePage> {
         data = await createTaskDialog.getNewTransientTaskData();
 
       scheduler.createTask(data);
-
       _updateState();
     } catch (e) {
       createTaskDialog.showErrorDialog(e.toString());
     }
   }
 
+  /// TODO: VIEW
   /// Fetch all events for the week
   /// where given day belongs
   List _fetchDayEvents(Date d) {
@@ -108,6 +109,12 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO
     return this.sched;
   }
+
+  /// TODO: EDIT
+
+  /// TODO: DELETE
+
+  /// TODO: FIND
 
   @override
   Widget build(BuildContext context) {

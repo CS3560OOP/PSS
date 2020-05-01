@@ -3,7 +3,7 @@ import '../transient_task.dart';
 import '../recurring_task.dart';
 import '../anti_task.dart';
 import '../date.dart';
-import '../type_matcher.dart';
+import '../type.dart';
 
 /// This class helps generates an object
 /// with the correct task class
@@ -11,7 +11,7 @@ import '../type_matcher.dart';
 /// Call only after validating that user inputs are correct
 class TaskGenerator {
   Task generateTask(Map<String, Object> task) {
-    final matcher = TypeMatcher();
+    final matcher = Type();
     if (task != null) {
       if (matcher.getType(task["Type"]) == "Recurring")
         return _generateRecurringTask(task);

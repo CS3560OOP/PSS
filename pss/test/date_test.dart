@@ -60,19 +60,20 @@ main() {
       expect(res, 11);
     });
 
-    test("getNextDay() value should be 20200102", () {
+    test("getNextDate() value should be 20200102", () {
       var date = Date(20200101);
-      expect(date.getNextDay().getIntDate(), 20200102);
+      expect(date.getNextDayDate().getIntDate(), 20200102);
     });
 
-    test("at last day of the year : getNextDay() value should be 20210101", () {
+    test("at last day of the year : getNextDate() value should be 20210101",
+        () {
       var date = new Date(20201231);
-      expect(date.getNextDay().getIntDate(), 20210101);
+      expect(date.getNextDayDate().getIntDate(), 20210101);
     });
 
-    test("at last day of the month : getNextDay() should return 20190201", () {
+    test("at last day of the month : getNextDate() should return 20190201", () {
       var date = new Date(20200131);
-      expect(date.getNextDay().getIntDate(), 20200201);
+      expect(date.getNextDayDate().getIntDate(), 20200201);
     });
 
     test("Leap Year : getLastDateOfMonth() should return 20200229", () {
@@ -84,6 +85,11 @@ main() {
       var date = Date(20210201);
 
       expect(date.getLastDateOfMonth().getIntDate(), 20210228);
+    });
+
+    test("getLastDateOfMonth() value should be 20200430", () {
+      var date = Date(20200510);
+      expect(date.getLastDateOfMonth().getIntDate(), 20200531);
     });
 
     test("isLastDayOfMonth() value should be true", () {
@@ -99,6 +105,41 @@ main() {
     test("isLastDayOfMonth() value should be false", () {
       var date = Date(20210110);
       expect(date.isLastDayOfMonth(), false);
+    });
+
+    test("getNextWeekDate() value should be 20200303", () {
+      var date = Date(20200225);
+      expect(date.getNextWeekDate().getIntDate(), 20200303);
+    });
+
+    test("getNextWeekDate() leap year value should be 20200217", () {
+      var date = Date(20200210);
+      expect(date.getNextWeekDate().getIntDate(), 20200217);
+    });
+
+    test("getNextWeekDate() not leap year value should be 20200302", () {
+      var date = Date(20210223);
+      expect(date.getNextWeekDate().getIntDate(), 20210302);
+    });
+
+    test("getNextWeekDate() not leap year value should be 20210201", () {
+      var date = Date(20210125);
+      expect(date.getNextWeekDate().getIntDate(), 20210201);
+    });
+
+    test("getNextWeekDate() not leap year value should be 20210104", () {
+      var date = Date(20201228);
+      expect(date.getNextWeekDate().getIntDate(), 20210104);
+    });
+
+    test("getNextMonthDate() 20200425 value should be 20200525", () {
+      var date = Date(20200425);
+      expect(date.getNextMonthDate().getIntDate(), 20200525);
+    });
+
+    test("getNextMonthDate() 20201225 value should be 20210125", () {
+      var date = Date(20201225);
+      expect(date.getNextMonthDate().getIntDate(), 20210125);
     });
   });
 }

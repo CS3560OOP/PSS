@@ -28,10 +28,12 @@ class Scheduler {
 
     //testing
     print(_schedule ?? "0");
-    RecurringTask temp2 = new RecurringTask(
-        "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
-    setSchedule([...data.TestData.customSet].toList());
-    _schedule.add(temp2);
+    // RecurringTask temp2 = new RecurringTask(
+    //     "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
+
+    // _schedule.add(temp2);
+
+    setSchedule(data.TestData.set1);
 
     writeToFile("test.json");
     readFromFile("test.json");
@@ -48,7 +50,7 @@ class Scheduler {
     // jsonString += jsonEncode(temp);
     //
     jsonString += "]";
-    //print(jsonString);
+    // print(jsonString);
     //write that string to a file
     fileIO.writeData(jsonString, fileName);
   }
@@ -58,21 +60,21 @@ class Scheduler {
     //read the json string from a file
     var jsonString = await fileIO.readData(fileName);
     //convert the jsonString to tasks in the schedule
-    //var schedule = jsonDecode(jsonString);
-    //print(schedule);
+    // var schedule = jsonDecode(jsonString);
+    // print(schedule);
   }
 
   /// Returns processed schedule
   void setSchedule(List<Map<String, Object>> tasks) {
     this._schedule = tasks.map((item) {
-      Task t;
       try {
+        Task t;
         validator.validateTask(this.getSchedule(), item);
         t = TaskGenerator().generateTask(item);
+        return t;
       } catch (e) {
         throw e;
       }
-      return t;
     }).toList();
   }
 
@@ -86,20 +88,24 @@ class Scheduler {
     List sched = this.getSchedule();
 
     try {
+      // check if user input is correct
       validator.validateTask(sched, data);
-      if (newTask is TransientTask) {
+      if (newTask is TransientTask || newTask is RecurringTask) {
+        // must no have overlaps to be added
+        String type = newTask.runtimeType.toString();
         if (validator.hasNoTimeOverlap(sched, newTask)) {
           this._schedule.add(newTask);
+        } else {
+          throw Exception("$type Overlap!");
         }
       } else if (newTask is AntiTask) {
         // must have overlap to be added
+        String type = newTask.runtimeType.toString();
         if (!validator.hasNoTimeOverlap(sched, newTask)) {
           this._schedule.add(newTask);
+        } else {
+          throw Exception("$type Overlap!");
         }
-      } else if (newTask is RecurringTask) {
-        // TODO: need to implement
-      } else {
-        throw Exception("Error: Task Cannot be created");
       }
     } catch (e) {
       throw e;
@@ -111,5 +117,7 @@ class Scheduler {
   ///TODO: Delete a task
 
   ///TODO: Edit a task
+
+  ///TODO: Find a task
 
 }

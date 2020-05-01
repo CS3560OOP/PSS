@@ -58,7 +58,7 @@ class Date {
   /// returns a tomorrow's date
   /// if not a valid date
   /// returns the last day of that month
-  Date getNextDay() {
+  Date getNextDayDate() {
     int y = getYear();
     int m = getMonth();
     Date newDate;
@@ -75,6 +75,76 @@ class Date {
       newDate = new Date(getIntDate() + 1);
     }
     return newDate;
+  }
+
+  Date getNextWeekDate() {
+    int y = getYear();
+    int m = getMonth();
+    int d;
+    Date newDate;
+
+    if (isLastWeekOfTheYear()) {
+      y++;
+      d = 1 + (7 - ((getLastDateOfMonth().getDay() - getDay()) + 1));
+      var date = int.parse(
+          y.toString().padLeft(4, "0") + "01" + d.toString().padLeft(2, "0"));
+      newDate = new Date(date);
+    } else if (isLastWeekOfTheMonth()) {
+      m++;
+      // calculates the day overflowing next month
+      d = 1 + (7 - ((getLastDateOfMonth().getDay() - getDay()) + 1));
+      var date = int.parse(y.toString().padLeft(4, "0") +
+          m.toString().padLeft(2, "0") +
+          d.toString().padLeft(2, "0"));
+      newDate = new Date(date);
+    } else {
+      newDate = new Date(getIntDate() + 7);
+    }
+    return newDate;
+  }
+
+  Date getNextMonthDate() {
+    int y = getYear();
+    int m = getMonth();
+    int d = getDay();
+    Date newDate;
+
+    if (getMonth() == 12) {
+      y++;
+      m = 1;
+      var date = int.parse(y.toString().padLeft(4, "0") +
+          m.toString().padLeft(2, "0") +
+          d.toString().padLeft(2, "0"));
+      newDate = new Date(date);
+    } else {
+      m++;
+      var date = int.parse(y.toString().padLeft(4, "0") +
+          m.toString().padLeft(2, "0") +
+          d.toString().padLeft(2, "0"));
+      newDate = new Date(date);
+    }
+
+    return newDate;
+  }
+
+  bool isLastWeekOfTheMonth() {
+    if (getLastDateOfMonth().getDay() == 28) {
+      if (getDay() >= 22) return true;
+    } else if (getLastDateOfMonth().getDay() == 29) {
+      if (getDay() >= 23) return true;
+    } else if (getLastDateOfMonth().getDay() == 30) {
+      if (getDay() >= 24) return true;
+    } else if (getLastDateOfMonth().getDay() == 31) {
+      if (getDay() >= 25) return true;
+    }
+    return false;
+  }
+
+  bool isLastWeekOfTheYear() {
+    if (getDay() > 24 && getMonth() == 12)
+      return true;
+    else
+      return false;
   }
 
   bool isLastDayOfMonth() {
@@ -97,8 +167,8 @@ class Date {
 
   /// returns the last day of the month
   Date getLastDateOfMonth() {
-    var y = this.getYear().toString().padLeft(4, "0");
-    var m = this.getMonth().toString().padLeft(2, "0");
+    var y = this.getYear();
+    var m = this.getMonth();
     var d;
 
     if (this.getMonth() == 2) {
@@ -112,7 +182,9 @@ class Date {
       d = 31;
     }
     d = d.toString().padLeft(2, "0");
-    return new Date(int.parse("$y$m$d"));
+
+    return new Date(int.parse(
+        y.toString().padLeft(4, "0") + m.toString().padLeft(2, "0") + d));
   }
 
   /// returns the first date of the month

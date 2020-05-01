@@ -57,4 +57,15 @@ class RecurringTask extends Task {
   int getFrequency() {
     return _frequency;
   }
+
+  Date getNextOccurance(Date date) {
+    if (getFrequency() == 1)
+      return date.getNextDayDate();
+    else if (getFrequency() == 7)
+      return date.getNextWeekDate();
+    else if (getFrequency() == 30)
+      return date.getNextMonthDate();
+    else
+      throw Exception("Cannot get occurence from Invalid Frequency");
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
+import 'package:pss/create/task_generator.dart';
 import 'date.dart';
-import 'type_matcher.dart';
+import 'type.dart';
 import 'anti_task.dart';
 import 'recurring_task.dart';
 import 'transient_task.dart';
@@ -32,7 +33,7 @@ class Validator {
 
   /// TASK FORMAT VALIDATORS *********************************************************
   void validateTask(List sched, Map<String, Object> task) {
-    final matcher = new TypeMatcher();
+    final matcher = new Type();
     try {
       var type = task["Type"];
 
@@ -53,6 +54,10 @@ class Validator {
         var sDate = new Date(task["StartDate"]);
         var eDate = new Date(task["EndDate"]);
         var freq = task["Frequency"];
+
+        if (!allValidDates(task)) {
+          throw Exception("Some Dates in the range are Not Valid.");
+        }
 
         if (!isValidDate(sDate)) {
           throw Exception("Invalid Start Date");
@@ -76,6 +81,19 @@ class Validator {
     }
   }
 
+  /// check if dates in between sDate and eDate given freq
+  /// are valid dates
+  bool allValidDates(Map<String, Object> data) {
+    RecurringTask task = TaskGenerator().generateTask(data);
+    Date date = task.getStartDate();
+    Date eDate = task.getEndDate();
+    while (date.getIntDate() <= eDate.getIntDate()) {
+      if (!isValidDate(date)) return false;
+      date = task.getNextOccurance(date);
+    }
+    return true;
+  }
+
   /// checks to see if name of new task
   /// is valid string and
   /// is not duplicate
@@ -92,7 +110,7 @@ class Validator {
     try {
       time = double.parse(t.toString());
       // check if input is parsable to double
-      if ((time <= 24) && (time > 0) && (time % 0.25 == 0.0))
+      if ((time <= 23.75) && (time > 0) && (time % 0.25 == 0.0))
         return true;
       else
         return false;
@@ -127,9 +145,7 @@ class Validator {
     }
   }
 
-  /// TASK FORMAT VALIDATORS *********************************************************
-
-  /// TASK OVERLAP VALIDATORS *********************************************************
+  /// TASK TIME/DATE OVERLAP VALIDATORS *************************************************
   ///
   /// checks to see if there are no time conflicts
   /// calls getDateOverlaps() to get potentialConflictsList
@@ -137,137 +153,205 @@ class Validator {
   /// this function will then check time conflicts
   /// if not time conflicts, returns true, false otherwise
   bool hasNoTimeOverlap(List sched, Task newTask) {
-    bool noOverlap = true;
     double start = newTask.getStartTime();
     double end = start + newTask.getDuration();
     List conflictList = getDateOverlaps(sched, newTask);
-
-    if (conflictList.isEmpty) {
-      noOverlap = true;
-    } else if (newTask is TransientTask) {
-      for (var t in conflictList) {
-        // existing task times
-        double tStart = t["StartTime"];
-        double tEnd = t["EndTime"];
-        if (start >= tEnd || end <= tStart) {
-          noOverlap = true;
-        } else {
-          return false;
+    // print(conflictList);
+    if (conflictList.isNotEmpty) {
+      if (newTask is TransientTask || newTask is RecurringTask) {
+        for (var t in conflictList) {
+          if (start < t["EndTime"] && end > t["StartTime"]) return false;
+        }
+      } else if (newTask is AntiTask) {
+        /// Overlap for an antitask
+        /// means both start and end times
+        /// are the equal
+        for (var t in conflictList) {
+          if (start == t["StartTime"] && end == t["EndTime"]) return false;
         }
       }
-    } else if (newTask is AntiTask) {
-      /// Overlap for an antitask
-      /// means both start and end times
-      /// are the equal
-      for (var t in conflictList) {
-        // existing task times
-        double tStart = t["StartTime"];
-        double tEnd = t["EndTime"];
-        if (start != tStart || end != tEnd) {
-          noOverlap = true;
-        } else {
-          return false;
-        }
-      }
-    } else if (newTask is RecurringTask) {
-      // TODO: need to implement
     }
-    return noOverlap;
+    return true;
   }
 
   /// Returns a list of all potential task
   /// that has the same date as the new task
   /// eliminates all recurring task instances that
   /// have corresponding anti-tasks
-  List getDateOverlaps(List tasks, dynamic newTask) {
-    int targetStartDate, targetEndDate, targetDate;
-    List antiTasksTimes = new List();
+  List getDateOverlaps(List sched, dynamic newTask) {
+    Date newTaskDate;
+    List antiTasks = new List();
     List recurringTasks = new List();
     List transientTasks = new List();
 
     // get potential conflicts
+    // returns List<Map> of all tasks
+    // have have overlapping dates
     if (newTask is RecurringTask) {
-      targetStartDate = newTask.getStartDate().getIntDate();
-      targetEndDate = newTask.getEndDate().getIntDate();
-
-      /// TODO
-    } else if (newTask is TransientTask) {
-      targetDate = newTask.getDate().getIntDate();
-      tasks.map((t) {
-        // recurring
-        if (t is RecurringTask) {
-          if (targetDate >= t.getStartDate().getIntDate() &&
-              targetDate <= t.getEndDate().getIntDate()) {
+      Date newTaskDate = newTask.getStartDate();
+      Date newTaskEndDate = newTask.getEndDate();
+      while (newTaskDate.getIntDate() < newTaskEndDate.getIntDate()) {
+        sched.forEach((t) {
+          if (t is RecurringTask) {
             if (hasDateOverlap(t, newTask)) {
               recurringTasks.add({
                 "StartTime": t.getStartTime(),
                 "EndTime": t.getStartTime() + t.getDuration()
               });
             }
+          } else if (t is TransientTask) {
+            // add all tasks that have a date equal
+            // to any of the dates covered by the
+            // recurring task
+            if (t.getDate().getIntDate() == newTaskDate.getIntDate()) {
+              transientTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            }
+          } else if (t is AntiTask) {
+            if (newTaskDate == t.getDate()) {
+              antiTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            }
+          } else {
+            throw Exception("No Type found for Existing Task");
+          }
+        });
+        newTaskDate = newTask.getNextOccurance(newTaskDate);
+      }
+    } else if (newTask is TransientTask) {
+      newTaskDate = newTask.getDate();
+      sched.forEach((t) {
+        // recurring
+        if (t is RecurringTask) {
+          if (hasDateOverlap(t, newTask)) {
+            recurringTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
           }
         } else if (t is TransientTask) {
-          if (targetDate == t.getDate().getIntDate()) {
+          if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
             transientTasks.add({
               "StartTime": t.getStartTime(),
               "EndTime": t.getStartTime() + t.getDuration()
             });
           }
+        } else if (t is AntiTask) {
+          if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
+            antiTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
+          }
         } else {
-          // AntiTask
-          if (targetDate == t.getDate().getIntDate()) {
-            antiTasksTimes.add(t.getStartTime());
-          }
+          throw Exception("No Type found for Existing Task");
         }
-      }).toList();
+      });
     } else if (newTask is AntiTask) {
-      targetDate = newTask.getDate().getIntDate();
-      tasks.map((t) {
+      sched.forEach((t) {
         if (t is RecurringTask) {
-          if (targetDate >= t.getStartDate().getIntDate() &&
-              targetDate <= t.getEndDate().getIntDate()) {
-            if (hasDateOverlap(t, newTask)) {
-              recurringTasks.add({
-                "StartTime": t.getStartTime(),
-                "EndTime": t.getStartTime() + t.getDuration()
-              });
-            }
-          }
-        }
-      }).toList();
-    } else {
-      throw Exception("No type match.");
-    }
-    // remove recurring tasks that have anti-tasks
-    if (antiTasksTimes.isNotEmpty) {
-      antiTasksTimes.forEach((time) {
-        for (int i = 0; i < recurringTasks.length; i++) {
-          if (time == recurringTasks[i]["StartTime"]) {
-            recurringTasks.removeAt(i);
+          if (hasDateOverlap(t, newTask)) {
+            recurringTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
           }
         }
       });
+    } else {
+      throw Exception("No type match.");
     }
-    return [...transientTasks, ...recurringTasks];
+
+    List filteredRecurTasks = recurringTasks;
+    try {
+      filteredRecurTasks = _filterRecurringTasks(antiTasks, recurringTasks);
+    } catch (e) {
+      print(e.toString());
+    }
+
+    return [...transientTasks, ...filteredRecurTasks];
+  }
+
+  // filters recurring tasks that have anti-tasks
+  // throw exception if Anti tasks exists
+  // without matching Recurring Tasks
+  List _filterRecurringTasks(List antiTasks, List recurringTasks) {
+    List anti = antiTasks;
+    List recur = recurringTasks;
+
+    if (anti.isNotEmpty) {
+      if (recur.length > anti.length) {
+        anti.forEach((t) {
+          for (int i = 0; i < recur.length; i++) {
+            if (t["StartTime"] == recur[i]["StartTime"] &&
+                t["EndTime"] == recur[i]["EndTime"]) {
+              recur.removeAt(i);
+            }
+          }
+        });
+      } else {
+        throw Exception("Found Antitasks without Recurring Tasks");
+      }
+    }
+    return recur;
   }
 
   /// check if a any of the dates covered by the recurring task
   /// conflicts with a transient task
-  bool hasDateOverlap(RecurringTask rTask, dynamic tTask) {
-    var targetDate = tTask.getDate().getIntDate();
-    var testDate = rTask.getStartDate().getIntDate();
-    var freq = rTask.getFrequency();
-    var hasOverlap = false;
+  bool hasDateOverlap(RecurringTask existingTask, dynamic newTask) {
+    Date existingDate = existingTask.getStartDate();
+    Date existingEndDate = existingTask.getEndDate();
+    bool hasOverlap = false;
 
-    while (testDate < rTask.getEndDate().getIntDate()) {
-      if (targetDate == testDate) {
-        return true;
+    if (newTask is RecurringTask) {
+      Date newDate = newTask.getStartDate();
+      Date newEndDate = newTask.getEndDate();
+      // check for any possible conflict on dates
+      if (newDate.getIntDate() >= existingDate.getIntDate() ||
+          newDate.getIntDate() <= existingEndDate.getIntDate() ||
+          newEndDate.getIntDate() <= existingEndDate.getIntDate()) {
+        while (newDate.getIntDate() <= newEndDate.getIntDate()) {
+          while (existingDate.getIntDate() <= existingEndDate.getIntDate() &&
+              hasOverlap != true) {
+            if (newDate.getIntDate() == existingDate.getIntDate()) {
+              hasOverlap = true;
+            } else {
+              hasOverlap = false;
+            }
+            // get next occurence of existing task
+            existingDate = existingTask.getNextOccurance(existingDate);
+          }
+          // get next occurence of new task
+          newDate = newTask.getNextOccurance(newDate);
+        }
       } else {
+        // no possible date conflicts
         hasOverlap = false;
       }
-      testDate += freq;
+    } else {
+      Date newTaskDate = newTask.getDate();
+      if (newTaskDate.getIntDate() >= existingDate.getIntDate() &&
+          newTaskDate.getIntDate() <= existingEndDate.getIntDate()) {
+        while (existingDate.getIntDate() <= existingEndDate.getIntDate() &&
+            !hasOverlap) {
+          if (newTaskDate.getIntDate() == existingDate.getIntDate()) {
+            hasOverlap = true;
+          } else {
+            hasOverlap = false;
+          }
+          // get next occurence of existing task
+          existingDate = existingTask.getNextOccurance(existingDate);
+        }
+      } else {
+        // no possible date conflicts
+        hasOverlap = false;
+      }
     }
+
     return hasOverlap;
   }
-
-  /// TASK OVERLAP VALIDATORS *********************************************************
 }
