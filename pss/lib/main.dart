@@ -9,6 +9,7 @@ import 'create/dialog_renderer.dart';
 import 'constants.dart';
 import 'date.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'dec_convert.dart';
 
 void main() => runApp(MyApp());
 
@@ -178,8 +179,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text("Type: " + event.getType()),
-                      Text("Start Time: " + event.getStartTime().toString()),
-                      Text("Duration: " + event.getDuration().toString()),
+                      Text("Start Time: " + convertTimeToString(event.getStartTime().toString())),
+                      Text("Duration: " + decToHours(event.getDuration().toString())),
                       event is AntiTask || event is TransientTask
                           ? Text("Type: " + event.getDate().getFormattedDate())
                           : SizedBox(),
