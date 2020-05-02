@@ -125,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: <Widget>[
           _buildTableCalendar(),
-          Expanded(child: _buildEventList()),
+          _buildEventList(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -163,40 +163,43 @@ class _MyHomePageState extends State<MyHomePage> {
   /// build widgets to show events for selected day
   // TODO: need to specify what type of view (daily, weekly, monthly)
   Widget _buildEventList() {
-    return ListView(
-      children: sched
-          .map((event) => Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 0.8),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(event.getName()),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text("Type: " + event.getType()),
-                      Text("Start Time: " + event.getStartTime().toString()),
-                      Text("Duration: " + event.getDuration().toString()),
-                      event is AntiTask || event is TransientTask
-                          ? Text("Type: " + event.getDate().getFormattedDate())
-                          : SizedBox(),
-                      event is RecurringTask
-                          ? Text("Start Date: " +
-                              event.getStartDate().getFormattedDate())
-                          : SizedBox(),
-                      event is RecurringTask
-                          ? Text("End Date: " +
-                              event.getEndDate().getFormattedDate())
-                          : SizedBox(),
-                    ],
+    return Expanded(
+      child: ListView(
+        children: sched
+            .map((event) => Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 0.8),
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                  onTap: () => print('$event tapped!'),
-                ),
-              ))
-          .toList(),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 4.0),
+                  child: ListTile(
+                    title: Text(event.getName()),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text("Type: " + event.getType()),
+                        Text("Start Time: " + event.getStartTime().toString()),
+                        Text("Duration: " + event.getDuration().toString()),
+                        event is AntiTask || event is TransientTask
+                            ? Text(
+                                "Type: " + event.getDate().getFormattedDate())
+                            : SizedBox(),
+                        event is RecurringTask
+                            ? Text("Start Date: " +
+                                event.getStartDate().getFormattedDate())
+                            : SizedBox(),
+                        event is RecurringTask
+                            ? Text("End Date: " +
+                                event.getEndDate().getFormattedDate())
+                            : SizedBox(),
+                      ],
+                    ),
+                    onTap: () => print('$event tapped!'),
+                  ),
+                ))
+            .toList(),
+      ),
     );
   }
 
