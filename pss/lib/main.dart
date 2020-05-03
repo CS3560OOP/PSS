@@ -250,8 +250,8 @@ class _MyHomePageState extends State<MyHomePage> {
           }
           else {
             DateTime dt = task[0].getStartDate().getDateTime();
-            double st = task[0].getStartTime();
-            double dur = task[0].getDuration();
+            int st = task[0].getStartTime().floor();
+            dt = new DateTime(dt.year, dt.month, dt.day, st);
             _calendarController.setFocusedDay(task[0].getStartDate().getDateTime());
             _calendarController.setSelectedDay(task[0].getStartDate().getDateTime());
           }
