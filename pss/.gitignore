@@ -32,7 +32,7 @@
 /build/
 build/
 ../.vscode/
-ios/Flutter/*.framework
+ios/Flutter/*.framework/
 
 # Web related
 lib/generated_plugin_registrant.dart
