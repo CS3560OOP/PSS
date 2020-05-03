@@ -68,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _updateState() {
     setState(() {
-      _sched = this.scheduler.getSchedule();
       if (_calendarController.selectedDay != null) {
         this._sched = scheduler.getDayEvents(_calendarController.selectedDay);
       } else {
@@ -77,7 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
         var end = _calendarController.visibleDays[visibleDays.length];
         this._sched = scheduler.getEventsBetween(start, end);
       }
-      this.taskList = _sched.map((item) => new TaskCard(item)).toList();
     });
   }
 
@@ -240,21 +238,28 @@ class _MyHomePageState extends State<MyHomePage> {
   //Searches for a task by name and sets controller to select the day of the found task
   void _searchTask(String name) {
     List<dynamic> task = scheduler.getNamedEvent(name);
-          print(task[0].getName());
-          if(task[0] is TransientTask || task[0] is AntiTask) {
-            DateTime dt = task[0].getDate().getDateTime();
-            int st = task[0].getStartTime().floor();
-            dt = new DateTime(dt.year, dt.month, dt.day, st);
-            _calendarController.setFocusedDay(task[0].getDate().getDateTime());
-            _calendarController.setSelectedDay(task[0].getDate().getDateTime());
-          }
-          else {
-            DateTime dt = task[0].getStartDate().getDateTime();
-            int st = task[0].getStartTime().floor();
-            dt = new DateTime(dt.year, dt.month, dt.day, st);
-            _calendarController.setFocusedDay(task[0].getStartDate().getDateTime());
-            _calendarController.setSelectedDay(task[0].getStartDate().getDateTime());
-          }
-          _updateState();
+    if (task.isNotEmpty) {
+      setState(() {
+        print(task[0].getName());
+        if (task[0] is TransientTask || task[0] is AntiTask) {
+          DateTime dt = task[0].getDate().getDateTime();
+          int st = task[0].getStartTime().floor();
+          dt = new DateTime(dt.year, dt.month, dt.day, st);
+          _calendarController.setFocusedDay(task[0].getDate().getDateTime());
+          _calendarController.setSelectedDay(task[0].getDate().getDateTime());
+        } else {
+          DateTime dt = task[0].getStartDate().getDateTime();
+          int st = task[0].getStartTime().floor();
+          dt = new DateTime(dt.year, dt.month, dt.day, st);
+          _calendarController
+              .setFocusedDay(task[0].getStartDate().getDateTime());
+          _calendarController
+              .setSelectedDay(task[0].getStartDate().getDateTime());
+        }
+        this._sched = task;
+      });
+    } else {
+      DialogRenderer(context).showErrorDialog("Task does not exist yet.");
+    }
   }
 }
