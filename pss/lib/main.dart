@@ -36,9 +36,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Scheduler scheduler;
   List<TaskCard> taskList;
-  List<dynamic> sched; // hold Task Objects
+  List<dynamic> _sched; // hold Task Objects
   CalendarController _calendarController;
   Map<DateTime, List> _events; // list of events on a certain day
+  bool _isSearching; //bool if user is searching for a task
 
   DialogRenderer createTaskDialog;
   @override
@@ -51,8 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
     // calendar object
     this._calendarController = CalendarController();
 
-    this.sched = scheduler.getSchedule();
-    this.taskList = sched.map((item) => new TaskCard(item)).toList();
+    this._sched = scheduler.getSchedule();
+    this.taskList = _sched.map((item) => new TaskCard(item)).toList();
+
+    this._isSearching = false;
   }
 
   @override
@@ -63,8 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _updateState() {
     setState(() {
-      sched = this.scheduler.getSchedule();
-      this.taskList = sched.map((item) => new TaskCard(item)).toList();
+      _sched = this.scheduler.getSchedule();
+      this.taskList = _sched.map((item) => new TaskCard(item)).toList();
     });
   }
 
@@ -91,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Fetch all events for the week
   /// where given day belongs
   List _fetchDayEvents(Date d) {
-    return this.sched;
+    return this._sched;
   }
 
   /// Fetch all events in which this
@@ -99,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Date start = d.getFirstDateOfWeek();
     Date end = d.getLastDayOfWeek();
     // TODO
-    return this.sched;
+    return this._sched;
   }
 
   /// Fetch all events for the month
@@ -108,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Date start = d.getFirstDateOfMonth();
     Date end = d.getLastDateOfMonth();
     // TODO
-    return this.sched;
+    return this._sched;
   }
 
   /// TODO: EDIT
@@ -121,7 +124,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        //If user is searching make title be a search bar
+        title: !this._isSearching ? Text(widget.title) : _buildSearchBar(),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              setState(() {
+                this._isSearching = !this._isSearching;
+              });
+            },
+          )
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -165,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // TODO: need to specify what type of view (daily, weekly, monthly)
   Widget _buildEventList() {
     return ListView(
-      children: sched
+      children: _sched
           .map((event) => Container(
                 decoration: BoxDecoration(
                   border: Border.all(width: 0.8),
@@ -179,8 +193,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text("Type: " + event.getType()),
-                      Text("Start Time: " + convertTimeToString(event.getStartTime().toString())),
-                      Text("Duration: " + decToHours(event.getDuration().toString())),
+                      Text("Start Time: " +
+                          convertTimeToString(event.getStartTime().toString())),
+                      Text("Duration: " +
+                          decToHours(event.getDuration().toString())),
                       event is AntiTask || event is TransientTask
                           ? Text("Type: " + event.getDate().getFormattedDate())
                           : SizedBox(),
@@ -201,6 +217,30 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildSearchBar() {
+    // return TextField(
+    //   autofocus: false,
+    //   decoration: InputDecoration(
+    //     icon: Icon(Icons.search),
+    //     fillColor: Colors.white,
+    //     focusColor: Colors.white,
+    //   ),
+    // );
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: new BorderRadius.circular(15.0),
+        color: Color(0xA0ffffff),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          icon: Icon(Icons.search),
+        ),
+        autofocus: false,
+        
+      ),
+    );
+  }
+
   /// Fetch all events in which this
   void _onDaySelected(DateTime d, List events) {
     Date date = new Date(int.parse(d.year.toString().padLeft(4, "0") +
@@ -208,16 +248,16 @@ class _MyHomePageState extends State<MyHomePage> {
         d.day.toString().padLeft(2, "0")));
     if (_calendarController.calendarFormat == CalendarFormat.month) {
       setState(() {
-        this.sched = _fetchMonthEvents(date);
+        this._sched = _fetchMonthEvents(date);
       });
     } else if (_calendarController.calendarFormat == CalendarFormat.week) {
       setState(() {
-        this.sched = _fetchWeekEvents(date);
+        this._sched = _fetchWeekEvents(date);
       });
     } else {
       if (events.isEmpty) {
         setState(() {
-          this.sched = _fetchDayEvents(date);
+          this._sched = _fetchDayEvents(date);
         });
       }
     }
