@@ -197,5 +197,25 @@ class Scheduler {
   ///TODO: Edit a task
 
   ///TODO: Find a task
+  //Returns singleton list of task of the given name if not found returns empty list
+  List getNamedEvent(String name) {
+    List<Task> task = new List<Task>();
+    _schedule.forEach((t) {
+      if(t.getName().compareTo(name) == 0) {
+        task.add(t);
+      }
+    });
+    return task;
+  }
 
+  // Helper function 
+  //Searches list of tasks to find task by name if not found returns null
+  Task _searchTaskByName(String name) {
+    _schedule.forEach((task) {
+      if(task.getName().compareTo(name) == 0) {
+        return task;
+      }
+    });
+    return null;
+  }
 }

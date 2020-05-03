@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: !this._isSearching ? Text(widget.title) : _buildSearchBar(),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(this._isSearching ? Icons.cancel : Icons.search),
             onPressed: () {
               setState(() {
                 this._isSearching = !this._isSearching;
@@ -218,14 +218,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildSearchBar() {
-    // return TextField(
-    //   autofocus: false,
-    //   decoration: InputDecoration(
-    //     icon: Icon(Icons.search),
-    //     fillColor: Colors.white,
-    //     focusColor: Colors.white,
-    //   ),
-    // );
     return Container(
       decoration: BoxDecoration(
         borderRadius: new BorderRadius.circular(15.0),
@@ -234,9 +226,35 @@ class _MyHomePageState extends State<MyHomePage> {
       child: TextField(
         decoration: InputDecoration(
           icon: Icon(Icons.search),
+          hintText: "Search by task name",
         ),
         autofocus: false,
+        onSubmitted: (String value) {
+          _searchTask(value);
+        },
       ),
     );
+  }
+
+  //TODO: If task not found alert user that task dne
+  //Searches for a task by name and sets controller to select the day of the found task
+  void _searchTask(String name) {
+    List<dynamic> task = scheduler.getNamedEvent(name);
+          print(task[0].getName());
+          if(task[0] is TransientTask || task[0] is AntiTask) {
+            DateTime dt = task[0].getDate().getDateTime();
+            int st = task[0].getStartTime().floor();
+            dt = new DateTime(dt.year, dt.month, dt.day, st);
+            _calendarController.setFocusedDay(task[0].getDate().getDateTime());
+            _calendarController.setSelectedDay(task[0].getDate().getDateTime());
+          }
+          else {
+            DateTime dt = task[0].getStartDate().getDateTime();
+            double st = task[0].getStartTime();
+            double dur = task[0].getDuration();
+            _calendarController.setFocusedDay(task[0].getStartDate().getDateTime());
+            _calendarController.setSelectedDay(task[0].getStartDate().getDateTime());
+          }
+          _updateState();
   }
 }
