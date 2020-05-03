@@ -9,6 +9,7 @@ import 'create/dialog_renderer.dart';
 import 'constants.dart';
 import 'date.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'dec_convert.dart';
 
 void main() => runApp(MyApp());
 
@@ -37,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<TaskCard> taskList;
   List<dynamic> _sched; // hold Task Objects
   CalendarController _calendarController;
+  Map<DateTime, List> _events; // list of events on a certain day
+  bool _isSearching; //bool if user is searching for a task
 
   DialogRenderer createTaskDialog;
   @override
@@ -50,6 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
     this._calendarController = CalendarController();
     this._sched = scheduler.getDayEvents(DateTime.now());
     this.taskList = _sched.map((item) => new TaskCard(item)).toList();
+
+    this._sched = scheduler.getSchedule();
+    this.taskList = _sched.map((item) => new TaskCard(item)).toList();
+
+    this._isSearching = false;
   }
 
   @override
@@ -69,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
         var end = _calendarController.visibleDays[visibleDays.length];
         this._sched = scheduler.getEventsBetween(start, end);
       }
+      this.taskList = _sched.map((item) => new TaskCard(item)).toList();
     });
   }
 
@@ -100,7 +109,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        //If user is searching make title be a search bar
+        title: !this._isSearching ? Text(widget.title) : _buildSearchBar(),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              setState(() {
+                this._isSearching = !this._isSearching;
+              });
+            },
+          )
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -155,51 +175,68 @@ class _MyHomePageState extends State<MyHomePage> {
   // TODO: need to specify what type of view (daily, weekly, monthly)
   Widget _buildEventList() {
     return Expanded(
-      child: _sched.isNotEmpty
-          ? ListView(
-              children: _sched
-                  .map((event) => Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(width: 0.8),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 4.0),
-                        child: ListTile(
-                          title: Text(event.getName()),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text("Type: " + event.getType()),
-                              Text("Start Time: " +
-                                  event.getStartTime().toString()),
-                              Text("Duration: " +
-                                  event.getDuration().toString()),
-                              event is AntiTask || event is TransientTask
-                                  ? Text("Date: " +
-                                      event.getDate().getFormattedDate())
-                                  : SizedBox(),
-                              event is RecurringTask
-                                  ? Text("Start Date: " +
-                                      event.getStartDate().getFormattedDate())
-                                  : SizedBox(),
-                              event is RecurringTask
-                                  ? Text("End Date: " +
-                                      event.getEndDate().getFormattedDate())
-                                  : SizedBox(),
-                            ],
-                          ),
-                          onTap: () => print('$event tapped!'),
-                        ),
-                      ))
-                  .toList(),
-            )
-          : Center(
-              child: Text(
-                "Nothing to do!",
-                style: TextStyle(fontSize: 30.0),
-              ),
-            ),
+      child: ListView(
+        children: _sched
+            .map((event) => Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 0.8),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 4.0),
+                  child: ListTile(
+                    title: Text(event.getName()),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text("Type: " + event.getType()),
+                        Text("Start Time: " +
+                            convertTimeToString(
+                                event.getStartTime().toString())),
+                        Text("Duration: " +
+                            decToHours(event.getDuration().toString())),
+                        event is AntiTask || event is TransientTask
+                            ? Text(
+                                "Type: " + event.getDate().getFormattedDate())
+                            : SizedBox(),
+                        event is RecurringTask
+                            ? Text("Start Date: " +
+                                event.getStartDate().getFormattedDate())
+                            : SizedBox(),
+                        event is RecurringTask
+                            ? Text("End Date: " +
+                                event.getEndDate().getFormattedDate())
+                            : SizedBox(),
+                      ],
+                    ),
+                    onTap: () => print('$event tapped!'),
+                  ),
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    // return TextField(
+    //   autofocus: false,
+    //   decoration: InputDecoration(
+    //     icon: Icon(Icons.search),
+    //     fillColor: Colors.white,
+    //     focusColor: Colors.white,
+    //   ),
+    // );
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: new BorderRadius.circular(15.0),
+        color: Color(0xA0ffffff),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          icon: Icon(Icons.search),
+        ),
+        autofocus: false,
+      ),
     );
   }
 }
