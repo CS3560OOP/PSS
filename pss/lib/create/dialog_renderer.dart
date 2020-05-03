@@ -101,6 +101,7 @@ class DialogRenderer {
 
   Widget _frequencyDropdown() {
     String selectedValue = "Daily";
+    _frequencyTextController.text = "1";
     return StatefulBuilder(
       builder: (context, setState) {
         return FormField<String>(builder: (FormFieldState<String> state) {

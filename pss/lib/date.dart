@@ -1,16 +1,24 @@
 import 'package:intl/intl.dart';
+import 'package:pss/validator.dart';
 
 class Date {
   int _year;
   int _month;
   int _day;
-  DateTime _date;
+  DateTime _dateTime;
 
   Date(int d) {
     this._year = d ~/ 10000;
     this._month = ((d % 10000) ~/ 100);
     this._day = d % 100;
-    this._date = DateTime(this._year, this._month, this._day);
+    this._dateTime = DateTime(this._year, this._month, this._day);
+  }
+
+  Date.dateTime(DateTime d) {
+    this._year = d.year;
+    this._month = d.month;
+    this._day = d.day;
+    this._dateTime = DateTime(this._year, this._month, this._day);
   }
 
   // setters and getters
@@ -30,8 +38,10 @@ class Date {
   }
 
   void _updateDate() {
-    this._date = DateTime(this._year, this._month, this._day);
+    this._dateTime = DateTime(this._year, this._month, this._day);
   }
+
+  DateTime getDateTime() => this._dateTime;
 
   int getYear() => this._year;
 
@@ -49,11 +59,11 @@ class Date {
   }
 
   // formatted getters
-  String getFormattedDate() => DateFormat.yMMMMd().format(this._date);
+  String getFormattedDate() => DateFormat.yMMMMd().format(this._dateTime);
 
-  String getWeekday() => DateFormat.EEEE().format(this._date);
+  String getWeekday() => DateFormat.EEEE().format(this._dateTime);
 
-  String getMonthName() => DateFormat.MMMM().format(this._date);
+  String getMonthName() => DateFormat.MMMM().format(this._dateTime);
 
   /// returns a tomorrow's date
   /// if not a valid date

@@ -12,17 +12,17 @@ main() {
     final monthlyTask = new RecurringTask(
         "Pay Rent", "Meal", 13.0, 0.5, Date(taskDate), Date(20200507), 30);
 
-    test("getNextOcurrence() daily value shout be 20200430", () {
+    test("getNextOcurrence() daily : value shout be 20200430", () {
       var res = dailyTask.getNextOccurance(Date(taskDate));
       expect(res.getIntDate(), 20200430);
     });
 
-    test("getNextOcurrence() weekly value shout be", () {
+    test("getNextOcurrence() weekly : value should be 20200506", () {
       var res = weeklyTask.getNextOccurance(Date(taskDate));
       expect(res.getIntDate(), 20200506);
     });
 
-    test("getNextOcurrence() monthly value shout be", () {
+    test("getNextOcurrence() monthly : value should be 20200529", () {
       var res = monthlyTask.getNextOccurance(Date(taskDate));
       expect(res.getIntDate(), 20200529);
     });

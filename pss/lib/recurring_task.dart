@@ -1,5 +1,6 @@
 import 'task.dart';
 import 'date.dart';
+import 'validator.dart';
 
 class RecurringTask extends Task {
   //class properties
@@ -63,9 +64,10 @@ class RecurringTask extends Task {
       return date.getNextDayDate();
     else if (getFrequency() == 7)
       return date.getNextWeekDate();
-    else if (getFrequency() == 30)
-      return date.getNextMonthDate();
-    else
+    else if (getFrequency() == 30) {
+      Date newDate = date.getNextMonthDate();
+      return newDate;
+    } else
       throw Exception("Cannot get occurence from Invalid Frequency");
   }
 }

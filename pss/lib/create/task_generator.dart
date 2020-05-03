@@ -10,7 +10,7 @@ import '../type.dart';
 /// using map input
 /// Call only after validating that user inputs are correct
 class TaskGenerator {
-  Task generateTask(Map<String, Object> task) {
+  dynamic generateTask(Map<String, Object> task) {
     final matcher = Type();
     if (task != null) {
       if (matcher.getType(task["Type"]) == "Recurring")

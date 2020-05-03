@@ -35,9 +35,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Scheduler scheduler;
   List<TaskCard> taskList;
-  List<dynamic> sched; // hold Task Objects
+  List<dynamic> _sched; // hold Task Objects
   CalendarController _calendarController;
-  Map<DateTime, List> _events; // list of events on a certain day
 
   DialogRenderer createTaskDialog;
   @override
@@ -49,9 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // calendar object
     this._calendarController = CalendarController();
-
-    this.sched = scheduler.getSchedule();
-    this.taskList = sched.map((item) => new TaskCard(item)).toList();
+    this._sched = scheduler.getDayEvents(DateTime.now());
+    this.taskList = _sched.map((item) => new TaskCard(item)).toList();
   }
 
   @override
@@ -62,8 +60,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _updateState() {
     setState(() {
-      sched = this.scheduler.getSchedule();
-      this.taskList = sched.map((item) => new TaskCard(item)).toList();
+      _sched = this.scheduler.getSchedule();
+      if (_calendarController.selectedDay != null) {
+        this._sched = scheduler.getDayEvents(_calendarController.selectedDay);
+      } else {
+        var visibleDays = _calendarController.visibleDays;
+        var start = visibleDays[0];
+        var end = _calendarController.visibleDays[visibleDays.length];
+        this._sched = scheduler.getEventsBetween(start, end);
+      }
     });
   }
 
@@ -78,36 +83,11 @@ class _MyHomePageState extends State<MyHomePage> {
         data = await createTaskDialog.getNewAntiTaskData();
       else
         data = await createTaskDialog.getNewTransientTaskData();
-
       scheduler.createTask(data);
       _updateState();
     } catch (e) {
       createTaskDialog.showErrorDialog(e.toString());
     }
-  }
-
-  /// TODO: VIEW
-  /// Fetch all events for the week
-  /// where given day belongs
-  List _fetchDayEvents(Date d) {
-    return this.sched;
-  }
-
-  /// Fetch all events in which this
-  List _fetchWeekEvents(Date d) {
-    Date start = d.getFirstDateOfWeek();
-    Date end = d.getLastDayOfWeek();
-    // TODO
-    return this.sched;
-  }
-
-  /// Fetch all events for the month
-  /// where the day day belongs
-  List _fetchMonthEvents(Date d) {
-    Date start = d.getFirstDateOfMonth();
-    Date end = d.getLastDateOfMonth();
-    // TODO
-    return this.sched;
   }
 
   /// TODO: EDIT
@@ -138,7 +118,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildTableCalendar() {
     return TableCalendar(
       calendarController: _calendarController,
-      events: _events,
       startingDayOfWeek: StartingDayOfWeek.sunday,
       calendarStyle: CalendarStyle(
         selectedColor: Colors.deepOrange[400],
@@ -154,8 +133,20 @@ class _MyHomePageState extends State<MyHomePage> {
           borderRadius: BorderRadius.circular(16.0),
         ),
       ),
-      onDaySelected: _onDaySelected,
-      // onVisibleDaysChanged: _onVisibleDaysChanged,
+      availableCalendarFormats: {
+        CalendarFormat.month: "View Month",
+        CalendarFormat.week: "View Week"
+      },
+      onDaySelected: (date, events) {
+        setState(() {
+          this._sched = scheduler.getDayEvents(date);
+        });
+      },
+      onVisibleDaysChanged: (start, end, format) {
+        setState(() {
+          this._sched = scheduler.getEventsBetween(start, end);
+        });
+      },
       // onCalendarCreated: _onCalendarCreated,
     );
   }
@@ -164,64 +155,51 @@ class _MyHomePageState extends State<MyHomePage> {
   // TODO: need to specify what type of view (daily, weekly, monthly)
   Widget _buildEventList() {
     return Expanded(
-      child: ListView(
-        children: sched
-            .map((event) => Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 0.8),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  child: ListTile(
-                    title: Text(event.getName()),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text("Type: " + event.getType()),
-                        Text("Start Time: " + event.getStartTime().toString()),
-                        Text("Duration: " + event.getDuration().toString()),
-                        event is AntiTask || event is TransientTask
-                            ? Text(
-                                "Type: " + event.getDate().getFormattedDate())
-                            : SizedBox(),
-                        event is RecurringTask
-                            ? Text("Start Date: " +
-                                event.getStartDate().getFormattedDate())
-                            : SizedBox(),
-                        event is RecurringTask
-                            ? Text("End Date: " +
-                                event.getEndDate().getFormattedDate())
-                            : SizedBox(),
-                      ],
-                    ),
-                    onTap: () => print('$event tapped!'),
-                  ),
-                ))
-            .toList(),
-      ),
+      child: _sched.isNotEmpty
+          ? ListView(
+              children: _sched
+                  .map((event) => Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 0.8),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        child: ListTile(
+                          title: Text(event.getName()),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text("Type: " + event.getType()),
+                              Text("Start Time: " +
+                                  event.getStartTime().toString()),
+                              Text("Duration: " +
+                                  event.getDuration().toString()),
+                              event is AntiTask || event is TransientTask
+                                  ? Text("Date: " +
+                                      event.getDate().getFormattedDate())
+                                  : SizedBox(),
+                              event is RecurringTask
+                                  ? Text("Start Date: " +
+                                      event.getStartDate().getFormattedDate())
+                                  : SizedBox(),
+                              event is RecurringTask
+                                  ? Text("End Date: " +
+                                      event.getEndDate().getFormattedDate())
+                                  : SizedBox(),
+                            ],
+                          ),
+                          onTap: () => print('$event tapped!'),
+                        ),
+                      ))
+                  .toList(),
+            )
+          : Center(
+              child: Text(
+                "Nothing to do!",
+                style: TextStyle(fontSize: 30.0),
+              ),
+            ),
     );
-  }
-
-  /// Fetch all events in which this
-  void _onDaySelected(DateTime d, List events) {
-    Date date = new Date(int.parse(d.year.toString().padLeft(4, "0") +
-        d.month.toString().padLeft(2, "0") +
-        d.day.toString().padLeft(2, "0")));
-    if (_calendarController.calendarFormat == CalendarFormat.month) {
-      setState(() {
-        this.sched = _fetchMonthEvents(date);
-      });
-    } else if (_calendarController.calendarFormat == CalendarFormat.week) {
-      setState(() {
-        this.sched = _fetchWeekEvents(date);
-      });
-    } else {
-      if (events.isEmpty) {
-        setState(() {
-          this.sched = _fetchDayEvents(date);
-        });
-      }
-    }
   }
 }

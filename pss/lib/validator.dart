@@ -55,10 +55,6 @@ class Validator {
         var eDate = new Date(task["EndDate"]);
         var freq = task["Frequency"];
 
-        if (!allValidDates(task)) {
-          throw Exception("Some Dates in the range are Not Valid.");
-        }
-
         if (!isValidDate(sDate)) {
           throw Exception("Invalid Start Date");
         }
@@ -190,28 +186,32 @@ class Validator {
     if (newTask is RecurringTask) {
       Date newTaskDate = newTask.getStartDate();
       Date newTaskEndDate = newTask.getEndDate();
-      while (newTaskDate.getIntDate() < newTaskEndDate.getIntDate()) {
+      while (newTaskDate.getIntDate() <= newTaskEndDate.getIntDate()) {
         sched.forEach((t) {
-          if (t is RecurringTask && hasDateOverlap(t, newTask)) {
-            recurringTasks.add({
-              "StartTime": t.getStartTime(),
-              "EndTime": t.getStartTime() + t.getDuration()
-            });
-          } else if (t is TransientTask &&
-              t.getDate().getIntDate() == newTaskDate.getIntDate()) {
+          if (t is RecurringTask) {
+            if (hasDateOverlap(t, newTask)) {
+              recurringTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            }
+          } else if (t is TransientTask) {
             // add all tasks that have a date equal
             // to any of the dates covered by the
             // recurring task
-            transientTasks.add({
-              "StartTime": t.getStartTime(),
-              "EndTime": t.getStartTime() + t.getDuration()
-            });
-          } else if (t is AntiTask &&
-              newTaskDate.getIntDate() == t.getDate().getIntDate()) {
-            antiTasks.add({
-              "StartTime": t.getStartTime(),
-              "EndTime": t.getStartTime() + t.getDuration()
-            });
+            if (t.getDate().getIntDate() == newTaskDate.getIntDate()) {
+              transientTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            }
+          } else if (t is AntiTask) {
+            if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
+              antiTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            }
           } else {
             throw Exception("No Type found for Existing Task");
           }
@@ -227,29 +227,33 @@ class Validator {
             "StartTime": t.getStartTime(),
             "EndTime": t.getStartTime() + t.getDuration()
           });
-        } else if (t is TransientTask &&
-            newTaskDate.getIntDate() == t.getDate().getIntDate()) {
-          transientTasks.add({
-            "StartTime": t.getStartTime(),
-            "EndTime": t.getStartTime() + t.getDuration()
-          });
-        } else if (t is AntiTask &&
-            newTaskDate.getIntDate() == t.getDate().getIntDate()) {
-          antiTasks.add({
-            "StartTime": t.getStartTime(),
-            "EndTime": t.getStartTime() + t.getDuration()
-          });
+        } else if (t is TransientTask) {
+          if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
+            transientTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
+          }
+        } else if (t is AntiTask) {
+          if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
+            antiTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
+          }
         } else {
           throw Exception("No Type found for Existing Task");
         }
       });
     } else if (newTask is AntiTask) {
       sched.forEach((t) {
-        if (t is RecurringTask && hasDateOverlap(t, newTask)) {
-          recurringTasks.add({
-            "StartTime": t.getStartTime(),
-            "EndTime": t.getStartTime() + t.getDuration()
-          });
+        if (t is RecurringTask) {
+          if (hasDateOverlap(t, newTask)) {
+            recurringTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
+          }
         }
       });
     } else {

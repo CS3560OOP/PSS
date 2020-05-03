@@ -16,6 +16,7 @@ class Scheduler {
   List<Task> _schedule;
   FileHandler fileIO;
   Validator validator;
+  Map<int, List<dynamic>> _events; // hold a map of date keys for easy search
 
   //constructor
   Scheduler() {
@@ -32,9 +33,8 @@ class Scheduler {
     //     "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
 
     // _schedule.add(temp2);
-
     setSchedule(data.TestData.set1);
-
+    setEvents(this._schedule);
     writeToFile("test.json");
     readFromFile("test.json");
     // print(_schedule);
@@ -107,12 +107,90 @@ class Scheduler {
           throw Exception("$type Overlap!");
         }
       }
+
+      /// update schedule
+      /// TODO: create separate update func
+      setEvents(this._schedule);
     } catch (e) {
       throw e;
     }
   }
 
-  ///TODO: View a task
+  /// set _events based on date/ date range provided
+  ///
+  void setEvents(List<Task> tasks) {
+    Date date, sDate, eDate;
+    this._events = Map<int, List<dynamic>>();
+    tasks.forEach((t) {
+      if (t is TransientTask) {
+        date = t.getDate();
+        this._events.update(date.getIntDate(), (listOfTasks) {
+          listOfTasks.add(t);
+          return listOfTasks;
+        }, ifAbsent: () {
+          var listOfTasks = new List<dynamic>();
+          listOfTasks.add(t);
+          return listOfTasks;
+        });
+      } else if (t is RecurringTask) {
+        sDate = t.getStartDate();
+        eDate = t.getEndDate();
+        while (sDate.getIntDate() <= eDate.getIntDate()) {
+          if (!Validator().isValidDate(sDate)) {
+            /// date does not exist
+            /// i.e. Feb 30
+            Date altDate = sDate.getLastDateOfMonth();
+
+            this._events.update(altDate.getIntDate(), (listOfTasks) {
+              listOfTasks.add(t);
+              return listOfTasks;
+            }, ifAbsent: () {
+              var listOfTasks = new List<dynamic>();
+              listOfTasks.add(t);
+              return listOfTasks;
+            });
+          }
+          this._events.update(sDate.getIntDate(), (listOfTasks) {
+            listOfTasks.add(t);
+            return listOfTasks;
+          }, ifAbsent: () {
+            var listOfTasks = new List<dynamic>();
+            listOfTasks.add(t);
+            return listOfTasks;
+          });
+          sDate = t.getNextOccurance(sDate);
+        }
+      }
+    });
+  }
+
+  Map<int, List<dynamic>> getEvents() => this._events;
+
+  /// returns tasks on given day d
+  List getDayEvents(DateTime d) {
+    Date date = Date.dateTime(d);
+    List tasks = List<dynamic>();
+    var events = getEvents();
+    tasks = events[date.getIntDate()] != null
+        ? events[date.getIntDate()]
+        : List<dynamic>();
+    return tasks;
+  }
+
+  /// returns a list of task containing
+  /// all tasks between s & e
+  List getEventsBetween(DateTime s, DateTime e) {
+    Date curr = Date.dateTime(s);
+    Date end = Date.dateTime(e);
+    List tasks = List<dynamic>();
+
+    while (curr.getIntDate() <= end.getIntDate()) {
+      var moreTasks = getDayEvents(curr.getDateTime());
+      tasks = [...tasks, ...moreTasks];
+      curr = curr.getNextDayDate();
+    }
+    return tasks;
+  }
 
   ///TODO: Delete a task
 
