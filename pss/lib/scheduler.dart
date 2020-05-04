@@ -22,46 +22,48 @@ class Scheduler {
   Scheduler() {
     //start with empty schedule
     _schedule = new List<Task>();
+    _events = new Map<int, List<dynamic>>();
     //create the fileHandler object
     fileIO = new FileHandler();
 
     validator = new Validator();
 
-    //testing
-    print(_schedule ?? "0");
-    // RecurringTask temp2 = new RecurringTask(
-    //     "CS3560-Tu", "Class", 19, 1.25, Date(20200414), Date(20200505), 7);
-
-    // _schedule.add(temp2);
-    setSchedule(data.TestData.set1);
-    setEvents(this._schedule);
-    writeToFile("test.json");
-    readFromFile("test.json");
-    // print(_schedule);
+      // setSchedule(data.TestData.set1);
+      //_seedData();
+    writeToFile("Set1.json");
+    readFromFile("Set1.json");
+    
+    //print(_schedule);
   }
+
+
 
   //Write the schedule to a file
   void writeToFile(String fileName) {
-    // var temp = {"name": "CS4600", "type": "Class", "duration": 1.75};
-    var jsonString = "[";
-    for (var task in _schedule) {
-      jsonString += jsonEncode(task);
-    }
-    // jsonString += jsonEncode(temp);
-    //
-    jsonString += "]";
-    // print(jsonString);
+    //The array is not directly encoded but calls and encodes each item individually
+    String jsonString = jsonEncode(_schedule);
     //write that string to a file
     fileIO.writeData(jsonString, fileName);
+    //
+    print(fileName + " has been written to");
   }
 
   //Read the schedule from a file
   Future<void> readFromFile(String fileName) async {
-    //read the json string from a file
+    //read the json string from the file
     var jsonString = await fileIO.readData(fileName);
-    //convert the jsonString to tasks in the schedule
-    // var schedule = jsonDecode(jsonString);
-    // print(schedule);
+    //convert the jsonString to a List<dynamic>
+    List<dynamic> map = jsonDecode(jsonString);
+    //Take each dynamic object in the List and cast it to <Map<String, Object>>
+    List<Map<String, Object>> tasks = List<Map<String, Object>>();
+    for(var task in map){
+      Map<String, Object> newTask = task;    
+      tasks.add(newTask);
+    }
+    //Set the Schedule with the data read from the file
+    setSchedule(tasks);
+    //Set the Events with the schedule
+    setEvents(_schedule);
   }
 
   /// Returns processed schedule
@@ -217,5 +219,26 @@ class Scheduler {
       }
     });
     return null;
+  }
+
+  // Seed the device with test data
+  Future<void> _seedData(){
+    _schedule.clear();
+    //Set the schedule with the test data, write the file, delete schedule
+    setSchedule(data.TestData.set1);
+    writeToFile("Set1.json");
+    _schedule.clear();
+    // Set 2
+    setSchedule(data.TestData.set2);
+    writeToFile("Set2.json");
+    _schedule.clear();
+    // Custom Set 1
+    setSchedule(data.TestData.customSet1);
+    writeToFile("CustomSet1.json");
+    _schedule.clear();
+    // Custom Set 2
+    setSchedule(data.TestData.customSet2);
+    writeToFile("CustomSet2.json");
+    _schedule.clear();
   }
 }
