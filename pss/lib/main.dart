@@ -207,12 +207,48 @@ class _MyHomePageState extends State<MyHomePage> {
                             : SizedBox(),
                       ],
                     ),
-                    onTap: () => print('$event tapped!'),
+                    onTap: () => deleteTaskDialog(context,event),
                   ),
                 ))
             .toList(),
       ),
     );
+  }
+
+  void deleteTaskDialog(BuildContext context, var taskName) {
+    Widget confirm = SimpleDialogOption(
+      child: const Text('Yes'),
+      onPressed: () {
+        Navigator.of(context).pop();
+        deleteTask(taskName);
+      },
+    );
+    Widget decline = SimpleDialogOption(
+      child: const Text('No'),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    SimpleDialog dialog = SimpleDialog(
+      title: const Text('Do you want to delete task?'),
+      children: <Widget>[
+        confirm,
+        decline
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return dialog;
+      },
+    );
+  }
+
+  void deleteTask(var name) {
+    _sched.remove(name);
+    setState(() {
+      _buildEventList();
+    });
   }
 
   Widget _buildSearchBar() {
