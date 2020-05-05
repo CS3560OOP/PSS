@@ -232,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
     SimpleDialog dialog = SimpleDialog(
-      title: const Text('Do you want to delete task?'),
+      title: const Text('Do you want to delete this task?'),
       children: <Widget>[
         confirm,
         decline
