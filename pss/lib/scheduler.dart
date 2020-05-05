@@ -33,8 +33,8 @@ class Scheduler {
     // setSchedule(data.TestData.set1);
 
     // // create initial schedule to simulator
-    // _seedData();
-    readFromFile("Set1.json");
+    //_seedData();
+    readFromFile("Set2.json");
   }
 
   //Write the schedule to a file
@@ -167,6 +167,7 @@ class Scheduler {
   List<dynamic> _filterRecurringTasks(List tasks) {
     var anti = List<dynamic>();
     var recur = List<dynamic>();
+
     tasks.forEach((val) {
       if (val is RecurringTask)
         recur.add(val);
@@ -176,7 +177,7 @@ class Scheduler {
     var itemsToRemove = new List<int>();
 
     if (anti.isNotEmpty) {
-      if (recur.length > anti.length) {
+      if (anti.length <= recur.length) {
         anti.forEach((a) {
           for (int i = 0; i < recur.length; i++) {
             if (a.getStartTime() == recur[i].getStartTime() &&
@@ -185,14 +186,13 @@ class Scheduler {
             }
           }
         });
+        itemsToRemove.forEach((index) {
+          recur.removeAt(index);
+        });
       } else {
         throw Exception("Found Antitasks without Recurring Tasks");
       }
     }
-
-    itemsToRemove.forEach((index) {
-      recur.removeAt(index);
-    });
 
     return recur;
   }
@@ -251,9 +251,7 @@ class Scheduler {
     // } else {
     //   await this._schedule.remove(task);
     // }
-    print(this._schedule);
     this._schedule.remove(task);
-    print(this._schedule);
     setEvents(this._schedule);
     //await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
   }
@@ -288,16 +286,16 @@ class Scheduler {
     writeToFile("Set1.json");
     _schedule.clear();
     // Set 2
-    setSchedule(data.TestData.set2);
-    writeToFile("Set2.json");
-    _schedule.clear();
+    // setSchedule(data.TestData.set2);
+    // writeToFile("Set2.json");
+    // _schedule.clear();
     // Custom Set 1
-    setSchedule(data.TestData.customSet1);
-    writeToFile("CustomSet1.json");
-    _schedule.clear();
-    // Custom Set 2
-    setSchedule(data.TestData.customSet2);
-    writeToFile("CustomSet2.json");
-    _schedule.clear();
+    // setSchedule(data.TestData.customSet1);
+    // writeToFile("CustomSet1.json");
+    // _schedule.clear();
+    // // Custom Set 2
+    // setSchedule(data.TestData.customSet2);
+    // writeToFile("CustomSet2.json");
+    // _schedule.clear();
   }
 }

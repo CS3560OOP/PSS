@@ -228,19 +228,17 @@ class Validator {
               "EndTime": t.getStartTime() + t.getDuration()
             });
           }
-        } else if (t is TransientTask) {
-          if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
-            transientTasks.add({
-              "StartTime": t.getStartTime(),
-              "EndTime": t.getStartTime() + t.getDuration()
-            });
-          }
-        } else if (t is AntiTask) {
-          if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
-            antiTasks.add({
-              "StartTime": t.getStartTime(),
-              "EndTime": t.getStartTime() + t.getDuration()
-            });
+        } else if (t is TransientTask || t is AntiTask) {
+          if (t is TransientTask) {
+            if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
+              antiTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            }
+          } else {
+            print("Task Added");
+            print("newTask = " + newTask.getName());
           }
         } else {
           throw Exception("No Type found for Existing Task");
