@@ -1,5 +1,5 @@
 class Type {
-  static const _recurringTypes = ["Class", "Study", "Exercise", "Work", "Meal"];
+  static const _recurringTypes = ["Class", "Study", "Exercise", "Work", "Meal", "Sleep"];
   static const _transientTypes = ["Visit", "Shopping", "Appointment"];
   static const _antiTaskTypes = ["Cancellation"];
 

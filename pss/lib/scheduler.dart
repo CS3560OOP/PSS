@@ -194,8 +194,9 @@ class Scheduler {
     return tasks;
   }
 
-  Future<void> deleteTask(String name) async {
-    await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
+  Future<void> deleteTask(Task task) async {
+    await _schedule.remove(task);
+    //await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
   }
 
   ///TODO: Find a task

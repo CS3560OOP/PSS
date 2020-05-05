@@ -23,9 +23,7 @@ class DialogRenderer {
   DialogRenderer(this.context);
 
   Widget _createNameInputField([String initVal = ""]) {
-    print("initVal:" + initVal);
     if (initVal.compareTo("") != 0) {
-      print("IM NOT NULL" + initVal);
       _nameTextController.text = initVal;
       return new TextFormField(
         controller: _nameTextController,
@@ -42,7 +40,6 @@ class DialogRenderer {
   }
 
   Widget _createStartDateInputField([String initVal = ""]) {
-    print("initVal:" + initVal);
     if (initVal.compareTo("") != 0) {
       _startDateTextController.text = initVal;
       return new TextFormField(
@@ -62,7 +59,6 @@ class DialogRenderer {
   }
 
   Widget _createEndDateInputField([String initVal =""]) {
-    print("initVal:" + initVal);
     if (initVal.compareTo("") != 0) {
       _endDateTextController.text = initVal;
       return new TextFormField(
@@ -82,7 +78,6 @@ class DialogRenderer {
   }
 
   Widget _createDateInputField([String initVal = ""]) {
-    print("initVal:" + initVal);
     if (initVal.compareTo("") != 0) {
       _dateTextController.text = initVal;
       return new TextFormField(
@@ -100,7 +95,6 @@ class DialogRenderer {
   }
 
   Widget _createStartTimeInputField([String initVal = ""]) {
-    print("initVal:" + initVal);
     if (initVal.compareTo("") != 0) {
       _startTimeTextController.text = initVal;
       return new TextFormField(
@@ -120,7 +114,6 @@ class DialogRenderer {
   }
 
   Widget _createDurationInputField([String initVal = ""]) {
-    print("initVal:" + initVal);
     if (initVal.compareTo("") != 0) {
       _durationTextController.text = initVal;
       return new TextFormField(
@@ -473,7 +466,6 @@ class DialogRenderer {
             new DialogButton(
                 label: "Add",
                 onPressed: () {
-                  print("PRESSED AD");
                   if (_nameTextController.text.isNotEmpty &&
                       _typeTextController.text.isNotEmpty &&
                       _startTimeTextController.text.isNotEmpty &&
@@ -491,7 +483,6 @@ class DialogRenderer {
                     });
                     clearFields();
                   } else {
-                    print("Error");
                     showErrorDialog("Please complete form!");
                   }
                 }),

@@ -325,6 +325,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _deleteTask(Task task) async {
-    await scheduler.deleteTask(task.getName());
+    await scheduler.deleteTask(task);
   }
 }
