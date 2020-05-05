@@ -85,8 +85,9 @@ class Scheduler {
   /// Create a task
   /// Appends new task to global task list
   Future<void> createTask(Map<String, Object> data) async {
+    print(data);
     var newTask = TaskGenerator().generateTask(data);
-
+    print(newTask.getName());
     List sched = this.getSchedule();
 
     try {
@@ -204,7 +205,6 @@ class Scheduler {
     //await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
   }
 
-  ///TODO: Find a task
   //Returns singleton list of task of the given name if not found returns empty list
   List getNamedEvent(String name) {
     List<Task> task = new List<Task>();

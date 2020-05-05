@@ -75,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
         var start = visibleDays[0];
         var end = _calendarController.visibleDays[visibleDays.length];
         this._sched = scheduler.getEventsBetween(start, end);
+        _buildEventList();
       }
     });
   }
@@ -91,7 +92,6 @@ class _MyHomePageState extends State<MyHomePage> {
       else
         data = await createTaskDialog.getNewTransientTaskData();
       await scheduler.createTask(data);
-      _calendarController.setSelectedDay(null);
       _updateState();
     } catch (e) {
       createTaskDialog.showErrorDialog(e.toString());
@@ -248,9 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void deleteTask(var name) {
     _sched.remove(name);
-    setState(() {
-      _buildEventList();
-    });
+    _updateState();
   }
 
   Widget _buildSearchBar() {
@@ -315,6 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if(data["Delete"] != null) {
           await _deleteTask(oldTask);
         }
+        print(data);
         scheduler.createTask(data);
         _updateState();
       }
