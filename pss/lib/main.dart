@@ -154,8 +154,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       availableCalendarFormats: {
-        CalendarFormat.month: "View Month",
-        CalendarFormat.week: "View Week"
+        CalendarFormat.month: "View Week",
+        CalendarFormat.week: "View Month"
       },
       onDaySelected: (date, events) {
         setState(() {
@@ -248,37 +248,6 @@ class _MyHomePageState extends State<MyHomePage> {
             .toList(),
       ),
     );
-  }
-
-  void deleteTaskDialog(BuildContext context, var taskName) {
-    Widget confirm = SimpleDialogOption(
-      child: const Text('Yes'),
-      onPressed: () {
-        Navigator.of(context).pop();
-        deleteTask(taskName);
-      },
-    );
-    Widget decline = SimpleDialogOption(
-      child: const Text('No'),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-    );
-    SimpleDialog dialog = SimpleDialog(
-      title: const Text('Do you want to delete this task?'),
-      children: <Widget>[confirm, decline],
-    );
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return dialog;
-      },
-    );
-  }
-
-  void deleteTask(dynamic task) {
-    scheduler.deleteTask(task);
-    _updateState();
   }
 
   Widget _buildSearchBar() {
