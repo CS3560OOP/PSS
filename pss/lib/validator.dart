@@ -36,7 +36,6 @@ class Validator {
     final matcher = new Type();
     try {
       var type = task["Type"];
-
       if (!isValidTaskName(sched, task["Name"])) {
         throw Exception("Task already exists");
       }
@@ -152,12 +151,27 @@ class Validator {
     double start = newTask.getStartTime();
     double end = start + newTask.getDuration();
     List conflictList = getDateOverlaps(sched, newTask);
+    // conflictList.forEach((task){print(task.getName());});
+    print("New Task: " + " " + start.toString() + " " + end.toString());
     if (conflictList.isNotEmpty) {
       if (newTask is TransientTask || newTask is RecurringTask) {
         for (var t in conflictList) {
+          print(t);
+          //Starts during and ends during or after
+          if ((start > t["StartTime"] && start < t["EndTime"])) return false;
+          //Starts before it and ends during it
+          if (start < t["StartTime"] &&
+              (end > t["StartTime"] && end < t["EndTime"])) return false;
+          //Starts before it and ends after it
+          if (start < t["StartTime"] && end > t["Endtime"]) {
+            print("whatsup");
+            return false;
+          }
           if (start < t["EndTime"] && end > t["StartTime"]) return false;
         }
       } else if (newTask is AntiTask) {
+        print("IM a anti task");
+
         /// Overlap for an antitask
         /// means both start and end times
         /// are the equal
@@ -165,6 +179,8 @@ class Validator {
           if (start == t["StartTime"] && end == t["EndTime"]) return false;
         }
       }
+    } else {
+      print("im empty");
     }
     return true;
   }
@@ -220,7 +236,7 @@ class Validator {
     } else if (newTask is TransientTask || newTask is AntiTask) {
       newTaskDate = newTask.getDate();
       sched.forEach((t) {
-        // recurring
+        print(newTask.getName() + " compare " + t.getName());
         if (t is RecurringTask) {
           if (hasDateOverlap(t, newTask)) {
             recurringTasks.add({
@@ -231,14 +247,16 @@ class Validator {
         } else if (t is TransientTask || t is AntiTask) {
           if (t is TransientTask) {
             if (newTaskDate.getIntDate() == t.getDate().getIntDate()) {
-              antiTasks.add({
+              transientTasks.add({
                 "StartTime": t.getStartTime(),
                 "EndTime": t.getStartTime() + t.getDuration()
               });
             }
-          } else {
-            print("Task Added");
-            print("newTask = " + newTask.getName());
+          } else if (t is AntiTask) {
+              antiTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
           }
         } else {
           throw Exception("No Type found for Existing Task");
@@ -247,8 +265,63 @@ class Validator {
     } else {
       throw Exception("No type match.");
     }
+    List filteredTasks;
+    print("Recur tasks" + recurringTasks.toString());
+    print("Anti tasks" + antiTasks.toString());
+    if (!(newTask is AntiTask)) {
+      filteredTasks = _filterRecurringTasks(recurringTasks, antiTasks);
+    } else {
+      filteredTasks = [...recurringTasks, ...antiTasks];
+    }
+    return [...transientTasks, ...filteredTasks];
+  }
 
-    return [...transientTasks, ...recurringTasks, ...antiTasks];
+  List<dynamic> _filterRecurringTasks(List recurTasks, List antiTasks) {
+    List filtered = new List();
+    if (antiTasks.isEmpty) {
+      filtered = recurTasks;
+    } else {
+      for (var rTask in recurTasks) {
+        for (var aTask in antiTasks) {
+          if (aTask["StartTime"] != rTask["StartTime"]) {
+            if (aTask["EndTime"] != rTask["Endtime"]) {
+              filtered.add(rTask);
+            }
+          }
+        }
+      }
+    }
+    return filtered;
+    // var anti = List<dynamic>();
+    // var recur = List<dynamic>();
+
+    // tasks.forEach((val) {
+    //   if (val is RecurringTask)
+    //     recur.add(val);
+    //   else if (val is AntiTask) anti.add(val);
+    // });
+
+    // var itemsToRemove = new List<int>();
+
+    // if (anti.isNotEmpty) {
+    //   if (anti.length <= recur.length) {
+    //     anti.forEach((a) {
+    //       for (int i = 0; i < recur.length; i++) {
+    //         if (a.getStartTime() == recur[i].getStartTime() &&
+    //             a.getDuration() == recur[i].getDuration()) {
+    //           itemsToRemove.add(i);
+    //         }
+    //       }
+    //     });
+    //     itemsToRemove.forEach((index) {
+    //       recur.removeAt(index);
+    //     });
+    //   } else {
+    //     throw Exception("Found Antitasks without Recurring Tasks");
+    //   }
+    // }
+
+    // return recur;
   }
 
   /// check if a any of the dates covered by the recurring task

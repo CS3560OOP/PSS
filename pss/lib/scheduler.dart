@@ -34,7 +34,7 @@ class Scheduler {
 
     // // create initial schedule to simulator
     //_seedData();
-    readFromFile("Set2.json");
+    readFromFile("Set1.json");
   }
 
   //Write the schedule to a file
@@ -57,11 +57,12 @@ class Scheduler {
     for (var task in map) {
       Map<String, Object> newTask = task;
       tasks.add(newTask);
+      createTask(task);
     }
     //Set the Schedule with the data read from the file
-    setSchedule(tasks);
+    // setSchedule(tasks);
     //Set the Events with the schedule
-    setEvents(_schedule);
+    // setEvents(_schedule);
   }
 
   /// Returns processed schedule
@@ -87,7 +88,8 @@ class Scheduler {
     List sched = this.getSchedule();
 
     try {
-      // check if user input is correct
+      print(data);
+      // check if user input is correctcreateTask
       validator.validateTask(sched, data);
       if (newTask is TransientTask || newTask is RecurringTask) {
         // must no have overlaps to be added
@@ -106,7 +108,6 @@ class Scheduler {
           throw Exception("$type was not added. No Recurring Task to cancel!");
         }
       }
-
       /// update schedule
       setEvents(this._schedule);
     } catch (e) {
