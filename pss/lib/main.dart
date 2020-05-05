@@ -36,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Scheduler scheduler;
-  List<TaskCard> taskList;
+
   List<dynamic> _sched; // hold Task Objects
   CalendarController _calendarController;
   bool _isSearching; //bool if user is searching for a task
@@ -52,8 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // calendar object
     this._calendarController = CalendarController();
 
+    // initialize task to current day
     this._sched = scheduler.getDayEvents(DateTime.now());
-    this.taskList = _sched.map((item) => new TaskCard(item)).toList();
     this._isSearching = false;
   }
 
@@ -118,7 +118,14 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[_buildReadButton(), _buildWriteButton()],
           ),
           _buildTableCalendar(),
-          _buildEventList(),
+          _sched.isNotEmpty
+              ? _buildEventList()
+              : Center(
+                  child: Text(
+                    "Nothing to do",
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -199,7 +206,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   /// build widgets to show events for selected day
-  // TODO: need to specify what type of view (daily, weekly, monthly)
   Widget _buildEventList() {
     return Expanded(
       child: ListView(
@@ -270,8 +276,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void deleteTask(var name) {
-    _sched.remove(name);
+  void deleteTask(dynamic task) {
+    scheduler.deleteTask(task);
     _updateState();
   }
 

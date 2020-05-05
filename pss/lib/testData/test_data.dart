@@ -39,7 +39,7 @@ class TestData {
       "Name": "Dinner",
       "Type": "Meal",
       "StartDate": 20200414,
-      "StartTime": 17,
+      "StartTime": 17.0,
       "Duration": 1,
       "EndDate": 20200507,
       "Frequency": 1
@@ -48,7 +48,7 @@ class TestData {
       "Name": "Homework",
       "Type": "Study",
       "StartDate": 20200414,
-      "StartTime": 15,
+      "StartTime": 15.0,
       "Duration": 1,
       "EndDate": 20200507,
       "Frequency": 1
@@ -57,15 +57,8 @@ class TestData {
       "Name": "Going to Mall",
       "Type": "Shopping",
       "Date": 20200501,
-      "StartTime": 10,
+      "StartTime": 10.0,
       "Duration": 1.5
-    },
-    {
-      "Name": "Intern Interview",
-      "Type": "Appointment",
-      "Date": 20200428,
-      "StartTime": 17,
-      "Duration": 2.5
     }
   ];
 

@@ -33,8 +33,7 @@ class Scheduler {
     // setSchedule(data.TestData.set1);
 
     // // create initial schedule to simulator
-    //_seedData();
-
+    // _seedData();
     readFromFile("Set1.json");
   }
 
@@ -44,7 +43,6 @@ class Scheduler {
     String jsonString = jsonEncode(_schedule);
     //write that string to a file
     fileIO.writeData(jsonString, fileName);
-    //
     print(fileName + " has been written to");
   }
 
@@ -136,7 +134,7 @@ class Scheduler {
         eDate = t.getEndDate();
         while (sDate.getIntDate() <= eDate.getIntDate()) {
           if (!Validator().isValidDate(sDate)) {
-            /// date does not exist
+            /// date does not exist use last day of the month
             /// i.e. Feb 30
             Date altDate = sDate.getLastDateOfMonth();
             this._events.update(altDate.getIntDate(), (listOfTasks) {
@@ -165,18 +163,6 @@ class Scheduler {
   }
 
   Map<int, List<dynamic>> getEvents() => this._events;
-
-  /// returns tasks on given day d
-  List getDayEvents(DateTime d) {
-    Date date = Date.dateTime(d);
-    List tasks = List<dynamic>();
-    var events = getEvents();
-    tasks = events[date.getIntDate()] != null
-        ? events[date.getIntDate()]
-        : List<dynamic>();
-    tasks = _filterRecurringTasks(tasks);
-    return tasks;
-  }
 
   List<dynamic> _filterRecurringTasks(List tasks) {
     var anti = List<dynamic>();
@@ -211,6 +197,28 @@ class Scheduler {
     return recur;
   }
 
+  /// returns tasks on given day d
+  List getDayEvents(DateTime d) {
+    Date date = Date.dateTime(d);
+    List tasks = List<dynamic>();
+    var events = getEvents();
+    tasks = events[date.getIntDate()] != null
+        ? events[date.getIntDate()]
+        : List<dynamic>();
+
+    var transientTasks = List<dynamic>();
+
+    tasks.forEach((t) {
+      if (t is TransientTask) transientTasks.add(t);
+    });
+
+    tasks = transientTasks != null && transientTasks.isNotEmpty
+        ? [...transientTasks, ..._filterRecurringTasks(tasks)]
+        : _filterRecurringTasks(tasks);
+
+    return tasks;
+  }
+
   /// returns a list of task containing
   /// all tasks between s & e
   List getEventsBetween(DateTime s, DateTime e) {
@@ -223,18 +231,30 @@ class Scheduler {
       tasks = [...tasks, ...moreTasks];
       curr = curr.getNextDayDate();
     }
-    tasks = _filterRecurringTasks(tasks);
+    var transientTasks = List<dynamic>();
+
+    tasks.forEach((t) {
+      if (t is TransientTask) transientTasks.add(t);
+    });
+
+    tasks = transientTasks != null && transientTasks.isNotEmpty
+        ? [...transientTasks, ..._filterRecurringTasks(tasks)]
+        : _filterRecurringTasks(tasks);
+
     return tasks;
   }
 
   Future<void> deleteTask(Task task) async {
-    if (task is RecurringTask) {
-      await _schedule.removeWhere(
-          (event) => event.getName().compareTo(task.getName()) == 0);
-    } else {
-      await _schedule.remove(task);
-    }
-    setEvents(_schedule);
+    // if (task is RecurringTask) {
+    //   await this._schedule.removeWhere(
+    //       (event) => event.getName().compareTo(task.getName()) == 0);
+    // } else {
+    //   await this._schedule.remove(task);
+    // }
+    print(this._schedule);
+    this._schedule.remove(task);
+    print(this._schedule);
+    setEvents(this._schedule);
     //await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
   }
 
@@ -263,7 +283,7 @@ class Scheduler {
   // Seed the device with test data
   Future<void> _seedData() {
     _schedule.clear();
-    //Set the schedule with the test data, write the file, delete schedule
+    // Set the schedule with the test data, write the file, delete schedule
     setSchedule(data.TestData.set1);
     writeToFile("Set1.json");
     _schedule.clear();
@@ -271,11 +291,11 @@ class Scheduler {
     setSchedule(data.TestData.set2);
     writeToFile("Set2.json");
     _schedule.clear();
-    // // Custom Set 1
+    // Custom Set 1
     setSchedule(data.TestData.customSet1);
     writeToFile("CustomSet1.json");
     _schedule.clear();
-    // // Custom Set 2
+    // Custom Set 2
     setSchedule(data.TestData.customSet2);
     writeToFile("CustomSet2.json");
     _schedule.clear();
