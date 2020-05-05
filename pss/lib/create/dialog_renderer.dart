@@ -9,20 +9,21 @@ import 'package:pss/transient_task.dart';
 
 /// This class renders dialog boxes for creating tasks
 class DialogRenderer {
-  static final _nameTextController = new TextEditingController();
-  static final _typeTextController = new TextEditingController();
-  static final _startDateTextController = new TextEditingController();
-  static final _startTimeTextController = new TextEditingController();
-  static final _durationTextController = new TextEditingController();
-  static final _endDateTextController = new TextEditingController();
-  static final _frequencyTextController = new TextEditingController();
-  static final _dateTextController = new TextEditingController();
+  static var _nameTextController = new TextEditingController();
+  static var _typeTextController = new TextEditingController();
+  static var _startDateTextController = new TextEditingController();
+  static var _startTimeTextController = new TextEditingController();
+  static var _durationTextController = new TextEditingController();
+  static var _endDateTextController = new TextEditingController();
+  static var _frequencyTextController = new TextEditingController();
+  static var _dateTextController = new TextEditingController();
   String typeValue = '';
   BuildContext context;
 
   DialogRenderer(this.context);
 
   Widget _createNameInputField([String initVal = ""]) {
+    print(initVal);
     if (initVal.compareTo("") != 0) {
       _nameTextController.text = initVal;
       return new TextFormField(
@@ -148,16 +149,9 @@ class DialogRenderer {
     } else {
       taskTypes = kRecurTaskTypes;
     }
-    print("YO");
-    print(taskTypes);
-
-    if (typeOfTask == "anti")
-      _typeTextController.text = "Cancellation";
-    else if (typeOfTask == "trans")
-      _typeTextController.text = "Appointment";
-    else
-      _typeTextController.text = "Class";
-
+    //Have to set controller text to non null value
+    _typeTextController.text = taskTypes[0];
+    String val = taskTypes[0];
     return StatefulBuilder(
       builder: (BuildContext context, setState) {
         return FormField<String>(builder: (FormFieldState<String> state) {
@@ -167,14 +161,17 @@ class DialogRenderer {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton(
-                  value: _typeTextController.text,
+                  value: val,
                   isDense: true,
-                  items: taskTypes.map((String value) {
+                  items: taskTypes.map((value) {
                     return DropdownMenuItem<String>(
                         value: value, child: Text(value));
                   }).toList(),
                   onChanged: (String type) {
-                    setState(() => _typeTextController.text = type);
+                    setState(() {
+                      val = type;
+                      _typeTextController.text = type;
+                      });
                   }),
             ),
           );
@@ -431,20 +428,15 @@ class DialogRenderer {
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
-
     final _transientTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          // _createNameInputField(name),
-          _nameInputField,
+          _createNameInputField(name),
           createTypeInputField("trans"),
-          _startTimeInputField,
-          _durationInputField,
-          _dateInputField,
-          // _createStartTimeInputField(startTime),
-          // _createDurationInputField(duration),
-          // _createDateInputField(date),
+          _createStartTimeInputField(startTime),
+          _createDurationInputField(duration),
+          _createDateInputField(date),
         ],
       ),
     );
@@ -584,27 +576,20 @@ class DialogRenderer {
       return getNewTransientTaskData(
           title: "Edit ${task.getName()}:",
           name: task.getName(),
-          type: task.getType(),
           startTime: task.getStartTime().toStringAsPrecision(4),
-          duration: task.getDuration().toStringAsPrecision(4),
-          date: task.getDate().getFormattedDate());
+          duration: task.getDuration().toStringAsPrecision(4));
     } else if (task is AntiTask) {
       return getNewAntiTaskData(
           title: "Edit ${task.getName()}:",
           name: task.getName(),
-          type: task.getType(),
           startTime: task.getStartTime().toStringAsPrecision(4),
-          duration: task.getDuration().toStringAsPrecision(4),
-          date: task.getDate().getFormattedDate());
+          duration: task.getDuration().toStringAsPrecision(4));
     } else if (task is RecurringTask) {
       return getNewRecurringTaskData(
           title: "Edit ${task.getName()}:",
           name: task.getName(),
-          type: task.getType(),
           startTime: task.getStartTime().toStringAsPrecision(4),
-          duration: task.getDuration().toStringAsPrecision(4),
-          startDate: task.getStartDate().getFormattedDate(),
-          endDate: task.getEndDate().getFormattedDate());
+          duration: task.getDuration().toStringAsPrecision(4));
     } else {
       throw Exception("Invalid task type to edit");
     }

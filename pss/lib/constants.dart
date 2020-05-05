@@ -10,17 +10,17 @@ const List<String> kRecurTaskTypes = [
   "Sleep",
   "Exercise",
   "Work",
-  "Meal",
+  "Meal"
 ];
 
 const List<String> kTransTaskTypes = [
   "Visit",
   "Shopping",
-  "Appointment",
+  "Appointment"
 ];
 
 const List<String> kAntiTaskTypes = [
-  "Cancellation",
+  "Cancellation"
 ];
 
 const List<String> kFrequencyOptions = ["Daily", "Weekly", "Monthly"];
