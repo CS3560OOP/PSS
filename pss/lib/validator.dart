@@ -253,10 +253,10 @@ class Validator {
               });
             }
           } else if (t is AntiTask) {
-              antiTasks.add({
-                "StartTime": t.getStartTime(),
-                "EndTime": t.getStartTime() + t.getDuration()
-              });
+            antiTasks.add({
+              "StartTime": t.getStartTime(),
+              "EndTime": t.getStartTime() + t.getDuration()
+            });
           }
         } else {
           throw Exception("No Type found for Existing Task");

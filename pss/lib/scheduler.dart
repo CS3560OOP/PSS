@@ -34,7 +34,7 @@ class Scheduler {
 
     // // create initial schedule to simulator
     //_seedData();
-    readFromFile("Set1.json");
+    readFromFile("Set2.json");
   }
 
   //Write the schedule to a file
@@ -57,12 +57,13 @@ class Scheduler {
     for (var task in map) {
       Map<String, Object> newTask = task;
       tasks.add(newTask);
-      createTask(task);
+      //createTask(task);
     }
+
     //Set the Schedule with the data read from the file
-    // setSchedule(tasks);
+    setSchedule(tasks);
     //Set the Events with the schedule
-    // setEvents(_schedule);
+    setEvents(_schedule);
   }
 
   /// Returns processed schedule
@@ -88,7 +89,6 @@ class Scheduler {
     List sched = this.getSchedule();
 
     try {
-      print(data);
       // check if user input is correctcreateTask
       validator.validateTask(sched, data);
       if (newTask is TransientTask || newTask is RecurringTask) {
@@ -108,6 +108,7 @@ class Scheduler {
           throw Exception("$type was not added. No Recurring Task to cancel!");
         }
       }
+
       /// update schedule
       setEvents(this._schedule);
     } catch (e) {
@@ -287,16 +288,16 @@ class Scheduler {
     writeToFile("Set1.json");
     _schedule.clear();
     // Set 2
-    // setSchedule(data.TestData.set2);
-    // writeToFile("Set2.json");
-    // _schedule.clear();
+    setSchedule(data.TestData.set2);
+    writeToFile("Set2.json");
+    _schedule.clear();
     // Custom Set 1
-    // setSchedule(data.TestData.customSet1);
-    // writeToFile("CustomSet1.json");
-    // _schedule.clear();
-    // // Custom Set 2
-    // setSchedule(data.TestData.customSet2);
-    // writeToFile("CustomSet2.json");
-    // _schedule.clear();
+    setSchedule(data.TestData.customSet1);
+    writeToFile("CustomSet1.json");
+    _schedule.clear();
+    // Custom Set 2
+    setSchedule(data.TestData.customSet2);
+    writeToFile("CustomSet2.json");
+    _schedule.clear();
   }
 }
