@@ -390,7 +390,7 @@ class DialogRenderer {
             new DialogButton(
                 label: "Cancel",
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context, {"Null" : "null"});
                   clearFields();
                 }),
             new DialogButton(
@@ -460,7 +460,7 @@ class DialogRenderer {
             new DialogButton(
                 label: "Cancel",
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context, {"Null" : "null"});
                   clearFields();
                 }),
             new DialogButton(
@@ -530,7 +530,7 @@ class DialogRenderer {
             new DialogButton(
                 label: "Cancel",
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context, {"Null" : "null"});
                   clearFields();
                 }),
             new DialogButton(

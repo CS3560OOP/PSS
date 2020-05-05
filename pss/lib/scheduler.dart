@@ -84,7 +84,7 @@ class Scheduler {
 
   /// Create a task
   /// Appends new task to global task list
-  void createTask(Map<String, Object> data) {
+  Future<void> createTask(Map<String, Object> data) async {
     var newTask = TaskGenerator().generateTask(data);
 
     List sched = this.getSchedule();
@@ -104,7 +104,7 @@ class Scheduler {
         // must have overlap to be added
         String type = newTask.runtimeType.toString();
         if (!validator.hasNoTimeOverlap(sched, newTask)) {
-          this._schedule.add(newTask);
+          await this._schedule.add(newTask);
         } else {
           throw Exception("$type Overlap!");
         }
@@ -195,7 +195,12 @@ class Scheduler {
   }
 
   Future<void> deleteTask(Task task) async {
-    await _schedule.remove(task);
+    if(task is RecurringTask) {
+      await _schedule.removeWhere((event) => event.getName().compareTo(task.getName()) == 0);
+    } else {
+      await _schedule.remove(task);
+    }
+    setEvents(_schedule);
     //await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
   }
 

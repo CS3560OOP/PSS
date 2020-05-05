@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         data = await createTaskDialog.getNewAntiTaskData();
       else
         data = await createTaskDialog.getNewTransientTaskData();
-      scheduler.createTask(data);
+      await scheduler.createTask(data);
       _updateState();
     } catch (e) {
       createTaskDialog.showErrorDialog(e.toString());
