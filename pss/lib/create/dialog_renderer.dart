@@ -22,8 +22,7 @@ class DialogRenderer {
 
   DialogRenderer(this.context);
 
-  Widget _createNameInputField([String initVal = ""]) {
-    print(initVal);
+  Widget _createNameInputField({String initVal = ""}) {
     if (initVal.compareTo("") != 0) {
       _nameTextController.text = initVal;
       return new TextFormField(
@@ -365,7 +364,7 @@ class DialogRenderer {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _createNameInputField(name),
+          _createNameInputField(initVal: name),
           createTypeInputField("recur"),
           _createStartTimeInputField(startTime),
           _createDurationInputField(duration),
@@ -432,7 +431,7 @@ class DialogRenderer {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _createNameInputField(name),
+          _createNameInputField(initVal: name),
           createTypeInputField("trans"),
           _createStartTimeInputField(startTime),
           _createDurationInputField(duration),
@@ -498,11 +497,11 @@ class DialogRenderer {
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
-    final _antiTaskDataFields = SingleChildScrollView(
+    var _antiTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _createNameInputField(name),
+          _createNameInputField(initVal: name),
           createTypeInputField("anti"),
           _createStartTimeInputField(startTime),
           _createDurationInputField(duration),

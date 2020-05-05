@@ -91,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
       else
         data = await createTaskDialog.getNewTransientTaskData();
       await scheduler.createTask(data);
+      _calendarController.setSelectedDay(null);
       _updateState();
     } catch (e) {
       createTaskDialog.showErrorDialog(e.toString());
@@ -277,7 +278,6 @@ class _MyHomePageState extends State<MyHomePage> {
     List<dynamic> task = scheduler.getNamedEvent(name);
     if (task.isNotEmpty) {
       setState(() {
-        print(task[0].getName());
         if (task[0] is TransientTask || task[0] is AntiTask) {
           DateTime dt = task[0].getDate().getDateTime();
           int st = task[0].getStartTime().floor();
