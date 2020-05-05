@@ -163,8 +163,7 @@ class Validator {
           if (start < t["StartTime"] &&
               (end > t["StartTime"] && end < t["EndTime"])) return false;
           //Starts before it and ends after it
-          if (start < t["StartTime"] && end > t["Endtime"]) {
-            print("whatsup");
+          if (start < t["StartTime"] && end > t["EndTime"]) {
             return false;
           }
           if (start < t["EndTime"] && end > t["StartTime"]) return false;
@@ -253,10 +252,14 @@ class Validator {
               });
             }
           } else if (t is AntiTask) {
-            antiTasks.add({
-              "StartTime": t.getStartTime(),
-              "EndTime": t.getStartTime() + t.getDuration()
-            });
+            if (t.getDate().getIntDate() == newTaskDate.getIntDate()) {
+              antiTasks.add({
+                "StartTime": t.getStartTime(),
+                "EndTime": t.getStartTime() + t.getDuration()
+              });
+            } else {
+              print(" IM FALSE");
+            }
           }
         } else {
           throw Exception("No Type found for Existing Task");
@@ -266,19 +269,20 @@ class Validator {
       throw Exception("No type match.");
     }
     List filteredTasks;
-    print("Recur tasks" + recurringTasks.toString());
-    print("Anti tasks" + antiTasks.toString());
+    print(recurringTasks.toString());
     if (!(newTask is AntiTask)) {
       filteredTasks = _filterRecurringTasks(recurringTasks, antiTasks);
     } else {
       filteredTasks = [...recurringTasks, ...antiTasks];
     }
+    print(filteredTasks.toString());
     return [...transientTasks, ...filteredTasks];
   }
 
   List<dynamic> _filterRecurringTasks(List recurTasks, List antiTasks) {
     List filtered = new List();
     if (antiTasks.isEmpty) {
+      print("Anti is empty");
       filtered = recurTasks;
     } else {
       for (var rTask in recurTasks) {
@@ -292,6 +296,7 @@ class Validator {
       }
     }
     return filtered;
+
     // var anti = List<dynamic>();
     // var recur = List<dynamic>();
 
@@ -320,7 +325,6 @@ class Validator {
     //     throw Exception("Found Antitasks without Recurring Tasks");
     //   }
     // }
-
     // return recur;
   }
 

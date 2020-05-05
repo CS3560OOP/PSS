@@ -4,7 +4,7 @@ class TestData {
       "Name": "CS3560-Tu",
       "Type": "Class",
       "StartDate": 20200414,
-      "StartTime": 19,
+      "StartTime": 19.0,
       "Duration": 1.25,
       "EndDate": 20200505,
       "Frequency": 7
@@ -13,7 +13,7 @@ class TestData {
       "Name": "CS3560-Th",
       "Type": "Class",
       "StartDate": 20200416,
-      "StartTime": 19,
+      "StartTime": 19.0,
       "Duration": 1.25,
       "EndDate": 20200507,
       "Frequency": 7
@@ -22,14 +22,14 @@ class TestData {
       "Name": "Skip For Visit",
       "Type": "Cancellation",
       "Date": 20200428,
-      "StartTime": 19,
+      "StartTime": 19.0,
       "Duration": 1.25
     },
     {
       "Name": "Intern Interview",
       "Type": "Appointment",
       "Date": 20200428,
-      "StartTime": 17,
+      "StartTime": 17.0,
       "Duration": 2.5
     }
   ];
