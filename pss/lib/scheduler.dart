@@ -192,9 +192,9 @@ class Scheduler {
     return tasks;
   }
 
-  ///TODO: Delete a task
-
-  ///TODO: Edit a task
+  Future<void> deleteTask(String name) async {
+    await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
+  }
 
   ///TODO: Find a task
   //Returns singleton list of task of the given name if not found returns empty list

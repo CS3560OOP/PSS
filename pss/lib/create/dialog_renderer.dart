@@ -2,21 +2,143 @@ import 'package:flutter/material.dart';
 import 'package:pss/components/dialog_button.dart';
 import '../constants.dart';
 import 'package:flutter/material.dart';
+import 'package:pss/task.dart';
+import 'package:pss/anti_task.dart';
+import 'package:pss/recurring_task.dart';
+import 'package:pss/transient_task.dart';
 
 /// This class renders dialog boxes for creating tasks
 class DialogRenderer {
-  static final _nameTextController = new TextEditingController();
-  static final _typeTextController = new TextEditingController();
-  static final _startDateTextController = new TextEditingController();
-  static final _startTimeTextController = new TextEditingController();
-  static final _durationTextController = new TextEditingController();
-  static final _endDateTextController = new TextEditingController();
-  static final _frequencyTextController = new TextEditingController();
-  static final _dateTextController = new TextEditingController();
+  static var _nameTextController = new TextEditingController();
+  static var _typeTextController = new TextEditingController();
+  static var _startDateTextController = new TextEditingController();
+  static var _startTimeTextController = new TextEditingController();
+  static var _durationTextController = new TextEditingController();
+  static var _endDateTextController = new TextEditingController();
+  static var _frequencyTextController = new TextEditingController();
+  static var _dateTextController = new TextEditingController();
   String typeValue = '';
   BuildContext context;
 
   DialogRenderer(this.context);
+
+  Widget _createNameInputField([String initVal = ""]) {
+    print("initVal:" + initVal);
+    if (initVal.compareTo("") != 0) {
+      print("IM NOT NULL" + initVal);
+      _nameTextController.text = initVal;
+      return new TextFormField(
+        controller: _nameTextController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(labelText: "Name"),
+      );
+    } else {
+      return new TextFormField(
+        controller: _nameTextController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(labelText: "Name"),
+      );
+    }
+  }
+
+  Widget _createStartDateInputField([String initVal = ""]) {
+    print("initVal:" + initVal);
+    if (initVal.compareTo("") != 0) {
+      _startDateTextController.text = initVal;
+      return new TextFormField(
+        controller: _startDateTextController,
+        keyboardType: TextInputType.text,
+        decoration:
+            InputDecoration(labelText: "Start Date", helperText: "YYYYMMDD"),
+      );
+    } else {
+      return new TextFormField(
+        controller: _startDateTextController,
+        keyboardType: TextInputType.text,
+        decoration:
+            InputDecoration(labelText: "Start Date", helperText: "YYYYMMDD"),
+      );
+    }
+  }
+
+  Widget _createEndDateInputField([String initVal =""]) {
+    print("initVal:" + initVal);
+    if (initVal.compareTo("") != 0) {
+      _endDateTextController.text = initVal;
+      return new TextFormField(
+        controller: _endDateTextController,
+        keyboardType: TextInputType.number,
+        decoration:
+            InputDecoration(labelText: "End Date", helperText: "YYYYMMDD"),
+      );
+    } else {
+      return new TextFormField(
+        controller: _endDateTextController,
+        keyboardType: TextInputType.number,
+        decoration:
+            InputDecoration(labelText: "End Date", helperText: "YYYYMMDD"),
+      );
+    }
+  }
+
+  Widget _createDateInputField([String initVal = ""]) {
+    print("initVal:" + initVal);
+    if (initVal.compareTo("") != 0) {
+      _dateTextController.text = initVal;
+      return new TextFormField(
+        controller: _dateTextController,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(labelText: "Date", helperText: "YYYYMMDD"),
+      );
+    } else {
+      return new TextFormField(
+        controller: _dateTextController,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(labelText: "Date", helperText: "YYYYMMDD"),
+      );
+    }
+  }
+
+  Widget _createStartTimeInputField([String initVal = ""]) {
+    print("initVal:" + initVal);
+    if (initVal.compareTo("") != 0) {
+      _startTimeTextController.text = initVal;
+      return new TextFormField(
+        controller: _startTimeTextController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+            labelText: "Start Time", helperText: "i.e. 13.75 = 1:45 pm"),
+      );
+    } else {
+      return new TextFormField(
+        controller: _startTimeTextController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+            labelText: "Start Time", helperText: "i.e. 13.75 = 1:45 pm"),
+      );
+    }
+  }
+
+  Widget _createDurationInputField([String initVal = ""]) {
+    print("initVal:" + initVal);
+    if (initVal.compareTo("") != 0) {
+      _durationTextController.text = initVal;
+      return new TextFormField(
+        controller: _durationTextController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+            labelText: "Duration", helperText: "i.e. 1.75 = 1 hr 45 min"),
+      );
+    }
+    else {
+      return new TextFormField(
+        controller: _durationTextController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+            labelText: "Duration", helperText: "i.e. 1.75 = 1 hr 45 min"),
+      );
+    }
+  }
 
   var _nameInputField = new TextFormField(
     controller: _nameTextController,
@@ -187,7 +309,58 @@ class DialogRenderer {
     );
   }
 
-  Future<Map> getNewRecurringTaskData() async {
+  void showEditDialog(Function editTask, Task task) {
+    showDialog<Map>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Edit Task:"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              RaisedButton(
+                  color: Colors.green,
+                  child: Text("Edit"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    editTask(false, true, task);
+                    clearFields();
+                  }),
+              RaisedButton(
+                  color: Colors.red,
+                  child: Text("Delete"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    editTask(true, false, task);
+                  }),
+              RaisedButton(
+                color: Colors.white,
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  editTask(false, false, task);
+                }
+              )
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<Map> getNewRecurringTaskData(
+      {String title = "New Recurring Task:",
+      String name = " ",
+      String type = " ",
+      String startDate = " ",
+      String endDate = " ",
+      String startTime = " ",
+      String duration = " ",
+      String freq = " "}) async {
     // _nameTextController.text = "Fix this";
     // _typeTextController.text = "Class";
     // _startTimeTextController.text = "11.75";
@@ -200,12 +373,12 @@ class DialogRenderer {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _nameInputField,
+          _createNameInputField(name),
           createTypeInputField("recur"),
-          _startTimeInputField,
-          _durationInputField,
-          _startDateInputField,
-          _endDateInputField,
+          _createStartTimeInputField(startTime),
+          _createDurationInputField(duration),
+          _createStartDateInputField(startDate),
+          _createEndDateInputField(endDate),
           _frequencyDropdown()
         ],
       ),
@@ -215,7 +388,7 @@ class DialogRenderer {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("New Recurring Task:"),
+          title: Text(title),
           content: _reccuringTaskDataFields,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -225,11 +398,13 @@ class DialogRenderer {
                 label: "Cancel",
                 onPressed: () {
                   Navigator.of(context).pop();
+                  clearFields();
                 }),
             new DialogButton(
                 label: "Add",
                 onPressed: () {
                   Navigator.pop(context, {
+                    "Delete": "true",
                     "Name": _nameTextController.text.trim(),
                     "Type": _typeTextController.text.trim(),
                     "StartDate":
@@ -249,22 +424,32 @@ class DialogRenderer {
     );
   }
 
-  Future<Map> getNewTransientTaskData() async {
+  Future<Map> getNewTransientTaskData(
+      {String title = "New Transient Task:",
+      String name = " ",
+      String type = " ",
+      String startTime = " ",
+      String duration = " ",
+      String date = " "}) async {
     // _nameTextController.text = "Fix this";
     // _typeTextController.text = "Visit";
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
 
-    final _reccuringTaskDataFields = SingleChildScrollView(
+    final _transientTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          // _createNameInputField(name),
           _nameInputField,
           createTypeInputField("trans"),
           _startTimeInputField,
           _durationInputField,
-          _dateInputField
+          _dateInputField,
+          // _createStartTimeInputField(startTime),
+          // _createDurationInputField(duration),
+          // _createDateInputField(date),
         ],
       ),
     );
@@ -273,8 +458,8 @@ class DialogRenderer {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("New Transient Task:"),
-          content: _reccuringTaskDataFields,
+          title: Text(title),
+          content: _transientTaskDataFields,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
           ),
@@ -283,16 +468,19 @@ class DialogRenderer {
                 label: "Cancel",
                 onPressed: () {
                   Navigator.of(context).pop();
+                  clearFields();
                 }),
             new DialogButton(
                 label: "Add",
                 onPressed: () {
+                  print("PRESSED AD");
                   if (_nameTextController.text.isNotEmpty &&
                       _typeTextController.text.isNotEmpty &&
                       _startTimeTextController.text.isNotEmpty &&
                       _durationTextController.text.isNotEmpty &&
                       _dateTextController.text.isNotEmpty) {
                     Navigator.pop(context, {
+                      "Delete": "true",
                       "Name": _nameTextController.text.trim(),
                       "Type": _typeTextController.text.trim(),
                       "StartTime":
@@ -313,21 +501,27 @@ class DialogRenderer {
     );
   }
 
-  Future<Map> getNewAntiTaskData() async {
+  Future<Map> getNewAntiTaskData(
+      {String title = "New Anti Task: ",
+      String name = " ",
+      String type = " ",
+      String startTime = " ",
+      String duration = " ",
+      String date = " "}) async {
     // _nameTextController.text = "Fix this";
     // _typeTextController.text = "Cancellation";
     // _startTimeTextController.text = "11.75";
     // _durationTextController.text = "1.75";
     // _dateTextController.text = "20200220";
-    final _reccuringTaskDataFields = SingleChildScrollView(
+    final _antiTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _nameInputField,
+          _createNameInputField(name),
           createTypeInputField("anti"),
-          _startTimeInputField,
-          _durationInputField,
-          _dateInputField
+          _createStartTimeInputField(startTime),
+          _createDurationInputField(duration),
+          _createDateInputField(date),
         ],
       ),
     );
@@ -336,8 +530,8 @@ class DialogRenderer {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("New Anti Task:"),
-          content: _reccuringTaskDataFields,
+          title: Text(title),
+          content: _antiTaskDataFields,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
           ),
@@ -346,11 +540,13 @@ class DialogRenderer {
                 label: "Cancel",
                 onPressed: () {
                   Navigator.of(context).pop();
+                  clearFields();
                 }),
             new DialogButton(
                 label: "Add",
                 onPressed: () {
                   Navigator.pop(context, {
+                    "Delete": "true",
                     "Name": _nameTextController.text.trim(),
                     "Type": _typeTextController.text.trim(),
                     "StartTime":
@@ -388,5 +584,36 @@ class DialogRenderer {
         );
       },
     );
+  }
+
+  Future<Map> getEditTaskData(Task task) async {
+    if (task is TransientTask) {
+      return getNewTransientTaskData(
+          title: "Edit ${task.getName()}:",
+          name: task.getName(),
+          type: task.getType(),
+          startTime: task.getStartTime().toStringAsPrecision(4),
+          duration: task.getDuration().toStringAsPrecision(4),
+          date: task.getDate().getFormattedDate());
+    } else if (task is AntiTask) {
+      return getNewAntiTaskData(
+          title: "Edit ${task.getName()}:",
+          name: task.getName(),
+          type: task.getType(),
+          startTime: task.getStartTime().toStringAsPrecision(4),
+          duration: task.getDuration().toStringAsPrecision(4),
+          date: task.getDate().getFormattedDate());
+    } else if (task is RecurringTask) {
+      return getNewRecurringTaskData(
+          title: "Edit ${task.getName()}:",
+          name: task.getName(),
+          type: task.getType(),
+          startTime: task.getStartTime().toStringAsPrecision(4),
+          duration: task.getDuration().toStringAsPrecision(4),
+          startDate: task.getStartDate().getFormattedDate(),
+          endDate: task.getEndDate().getFormattedDate());
+    } else {
+      throw Exception("Invalid task type to edit");
+    }
   }
 }

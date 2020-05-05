@@ -4,6 +4,7 @@ class Type {
   static const _antiTaskTypes = ["Cancellation"];
 
   String getType(String t) {
+    print("YO" + t);
     if (_recurringTypes.contains(t)) {
       return "Recurring";
     } else if (_transientTypes.contains(t)) {

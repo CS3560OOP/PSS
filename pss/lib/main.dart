@@ -207,7 +207,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             : SizedBox(),
                       ],
                     ),
-                    onTap: () => deleteTaskDialog(context,event),
+                    onTap: () => createTaskDialog.showEditDialog(_editTask, event),
+                    // onTap: () => deleteTaskDialog(context,event),
                   ),
                 ))
             .toList(),
@@ -297,5 +298,33 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       DialogRenderer(context).showErrorDialog("Task does not exist yet.");
     }
+  }
+
+  //Input: isEdit if editing the task 
+  //       oldTask task to be edited or deleted
+  void _editTask(bool isDelete, bool isEdit, Task oldTask) async {
+    //Delete task
+    if(isDelete) {
+      await _deleteTask(oldTask);
+      _updateState();
+    }
+    //If isEdit then create new task with newly edited properties
+    if(isEdit) {
+      try {
+        var data = await createTaskDialog.getEditTaskData(oldTask);
+        if(data["Delete"] != null) {
+          await _deleteTask(oldTask);
+        }
+        scheduler.createTask(data);
+        _updateState();
+      }
+      catch (e){
+        createTaskDialog.showErrorDialog(e.toString());
+      }
+    }
+  }
+
+  Future<void> _deleteTask(Task task) async {
+    await scheduler.deleteTask(task.getName());
   }
 }
