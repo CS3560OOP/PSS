@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pss/anti_task.dart';
 import 'package:pss/recurring_task.dart';
 import 'package:pss/transient_task.dart';
+import 'create/dialog_renderer.dart';
 import 'scheduler.dart';
 import 'components/task_card.dart';
 import 'task.dart';
@@ -38,25 +39,21 @@ class _MyHomePageState extends State<MyHomePage> {
   List<TaskCard> taskList;
   List<dynamic> _sched; // hold Task Objects
   CalendarController _calendarController;
-  Map<DateTime, List> _events; // list of events on a certain day
   bool _isSearching; //bool if user is searching for a task
+  DialogRenderer dialog;
 
-  DialogRenderer createTaskDialog;
   @override
   void initState() {
     super.initState();
     //initialize data for page
     scheduler = new Scheduler();
-    createTaskDialog = new DialogRenderer(context);
+    dialog = new DialogRenderer(context);
 
     // calendar object
     this._calendarController = CalendarController();
+
     this._sched = scheduler.getDayEvents(DateTime.now());
     this.taskList = _sched.map((item) => new TaskCard(item)).toList();
-
-    this._sched = scheduler.getSchedule();
-    this.taskList = _sched.map((item) => new TaskCard(item)).toList();
-
     this._isSearching = false;
   }
 
@@ -75,7 +72,6 @@ class _MyHomePageState extends State<MyHomePage> {
         var start = visibleDays[0];
         var end = _calendarController.visibleDays[visibleDays.length];
         this._sched = scheduler.getEventsBetween(start, end);
-        _buildEventList();
       }
     });
   }
@@ -86,23 +82,17 @@ class _MyHomePageState extends State<MyHomePage> {
       var data;
       // get input from user
       if (type == "recur")
-        data = await createTaskDialog.getNewRecurringTaskData();
+        data = await dialog.getNewRecurringTaskData();
       else if (type == "anti")
-        data = await createTaskDialog.getNewAntiTaskData();
+        data = await dialog.getNewAntiTaskData();
       else
-        data = await createTaskDialog.getNewTransientTaskData();
+        data = await dialog.getNewTransientTaskData();
       await scheduler.createTask(data);
       _updateState();
     } catch (e) {
-      createTaskDialog.showErrorDialog(e.toString());
+      dialog.showErrorDialog(e.toString());
     }
   }
-
-  /// TODO: EDIT
-
-  /// TODO: DELETE
-
-  /// TODO: FIND
 
   @override
   Widget build(BuildContext context) {
@@ -112,24 +102,28 @@ class _MyHomePageState extends State<MyHomePage> {
         title: !this._isSearching ? Text(widget.title) : _buildSearchBar(),
         actions: <Widget>[
           IconButton(
-            icon: Icon(this._isSearching ? Icons.cancel : Icons.search),
-            onPressed: () {
-              setState(() {
-                this._isSearching = !this._isSearching;
-              });
-            },
-          )
+              icon: Icon(this._isSearching ? Icons.cancel : Icons.search),
+              onPressed: () {
+                setState(() {
+                  this._isSearching = !this._isSearching;
+                });
+              }),
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[_buildReadButton(), _buildWriteButton()],
+          ),
           _buildTableCalendar(),
           _buildEventList(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => createTaskDialog.showTaskTypesDialogBox(_createTask),
+        onPressed: () => dialog.showTaskTypesDialogBox(_createTask),
       ),
     );
   }
@@ -166,7 +160,41 @@ class _MyHomePageState extends State<MyHomePage> {
           this._sched = scheduler.getEventsBetween(start, end);
         });
       },
-      // onCalendarCreated: _onCalendarCreated,
+    );
+  }
+
+  Widget _buildWriteButton() {
+    return RaisedButton(
+      color: Colors.red[800],
+      child: Text(
+        "Write Schedule",
+        style: TextStyle(fontSize: 16.0, color: Colors.white),
+      ),
+      onPressed: () {
+        dialog.showFilenameDialog().then((val) {
+          scheduler.writeToFile(val);
+        }).catchError((e) {
+          dialog.showErrorDialog(e.toString());
+        });
+      },
+    );
+  }
+
+  Widget _buildReadButton() {
+    return RaisedButton(
+      color: Colors.blue[800],
+      child: Text(
+        "Read Schedule",
+        style: TextStyle(fontSize: 16.0, color: Colors.white),
+      ),
+      onPressed: () {
+        dialog.showFilenameDialog().then((val) {
+          scheduler.readFromFile(val);
+          _updateState();
+        }).catchError((e) {
+          print(e);
+        });
+      },
     );
   }
 
@@ -208,8 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             : SizedBox(),
                       ],
                     ),
-                    onTap: () => createTaskDialog.showEditDialog(_editTask, event),
-                    // onTap: () => deleteTaskDialog(context,event),
+                    onTap: () => dialog.showEditDialog(_editTask, event),
                   ),
                 ))
             .toList(),
@@ -233,10 +260,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     SimpleDialog dialog = SimpleDialog(
       title: const Text('Do you want to delete this task?'),
-      children: <Widget>[
-        confirm,
-        decline
-      ],
+      children: <Widget>[confirm, decline],
     );
     showDialog(
       context: context,
@@ -270,7 +294,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  //TODO: If task not found alert user that task dne
   //Searches for a task by name and sets controller to select the day of the found task
   void _searchTask(String name) {
     List<dynamic> task = scheduler.getNamedEvent(name);
@@ -298,27 +321,25 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  //Input: isEdit if editing the task 
+  //Input: isEdit if editing the task
   //       oldTask task to be edited or deleted
   void _editTask(bool isDelete, bool isEdit, Task oldTask) async {
     //Delete task
-    if(isDelete) {
+    if (isDelete) {
       await _deleteTask(oldTask);
       _updateState();
     }
     //If isEdit then create new task with newly edited properties
-    if(isEdit) {
+    if (isEdit) {
       try {
-        var data = await createTaskDialog.getEditTaskData(oldTask);
-        if(data["Delete"] != null) {
+        var data = await dialog.getEditTaskData(oldTask);
+        if (data["Delete"] != null) {
           await _deleteTask(oldTask);
         }
-        print(data);
         scheduler.createTask(data);
         _updateState();
-      }
-      catch (e){
-        createTaskDialog.showErrorDialog(e.toString());
+      } catch (e) {
+        dialog.showErrorDialog(e.toString());
       }
     }
   }

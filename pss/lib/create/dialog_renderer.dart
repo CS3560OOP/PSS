@@ -58,7 +58,7 @@ class DialogRenderer {
     }
   }
 
-  Widget _createEndDateInputField([String initVal =""]) {
+  Widget _createEndDateInputField([String initVal = ""]) {
     if (initVal.compareTo("") != 0) {
       _endDateTextController.text = initVal;
       return new TextFormField(
@@ -122,8 +122,7 @@ class DialogRenderer {
         decoration: InputDecoration(
             labelText: "Duration", helperText: "i.e. 1.75 = 1 hr 45 min"),
       );
-    }
-    else {
+    } else {
       return new TextFormField(
         controller: _durationTextController,
         keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -170,7 +169,7 @@ class DialogRenderer {
                     setState(() {
                       val = type;
                       _typeTextController.text = type;
-                      });
+                    });
                   }),
             ),
           );
@@ -326,13 +325,12 @@ class DialogRenderer {
                     editTask(true, false, task);
                   }),
               RaisedButton(
-                color: Colors.white,
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  editTask(false, false, task);
-                }
-              )
+                  color: Colors.white,
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    editTask(false, false, task);
+                  })
             ],
           ),
           shape: RoundedRectangleBorder(
@@ -352,14 +350,6 @@ class DialogRenderer {
       String startTime = " ",
       String duration = " ",
       String freq = " "}) async {
-    // _nameTextController.text = "Fix this";
-    // _typeTextController.text = "Class";
-    // _startTimeTextController.text = "11.75";
-    // _durationTextController.text = "1.75";
-    // _startDateTextController.text = "20200220";
-    // _endDateTextController.text = "20200224";
-    // _frequencyTextController.text = "7";
-
     final _reccuringTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -388,7 +378,7 @@ class DialogRenderer {
             new DialogButton(
                 label: "Cancel",
                 onPressed: () {
-                  Navigator.pop(context, {"Null" : "null"});
+                  Navigator.pop(context, {"Null": "null"});
                   clearFields();
                 }),
             new DialogButton(
@@ -422,11 +412,6 @@ class DialogRenderer {
       String startTime = " ",
       String duration = " ",
       String date = " "}) async {
-    // _nameTextController.text = "Fix this";
-    // _typeTextController.text = "Visit";
-    // _startTimeTextController.text = "11.75";
-    // _durationTextController.text = "1.75";
-    // _dateTextController.text = "20200220";
     final _transientTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -453,7 +438,7 @@ class DialogRenderer {
             new DialogButton(
                 label: "Cancel",
                 onPressed: () {
-                  Navigator.pop(context, {"Null" : "null"});
+                  Navigator.pop(context, {"Null": "null"});
                   clearFields();
                 }),
             new DialogButton(
@@ -492,11 +477,6 @@ class DialogRenderer {
       String startTime = " ",
       String duration = " ",
       String date = " "}) async {
-    // _nameTextController.text = "Fix this";
-    // _typeTextController.text = "Cancellation";
-    // _startTimeTextController.text = "11.75";
-    // _durationTextController.text = "1.75";
-    // _dateTextController.text = "20200220";
     var _antiTaskDataFields = SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -523,7 +503,7 @@ class DialogRenderer {
             new DialogButton(
                 label: "Cancel",
                 onPressed: () {
-                  Navigator.pop(context, {"Null" : "null"});
+                  Navigator.pop(context, {"Null": "null"});
                   clearFields();
                 }),
             new DialogButton(
@@ -547,8 +527,8 @@ class DialogRenderer {
     );
   }
 
-  Future<Map> showErrorDialog(String msg) async {
-    return await showDialog<Map>(
+  Future<void> showErrorDialog(String msg) async {
+    return await showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
@@ -563,6 +543,41 @@ class DialogRenderer {
                 label: "Cancel",
                 onPressed: () {
                   Navigator.of(context).pop();
+                }),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String> showFilenameDialog() async {
+    final _filenameTextController = new TextEditingController();
+    return await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Enter JSON File Name"),
+          content: new TextFormField(
+            controller: _filenameTextController,
+            keyboardType: TextInputType.text,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
+          actions: <Widget>[
+            new DialogButton(
+                label: "Cancel",
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }),
+            new DialogButton(
+                label: "Okay",
+                onPressed: () {
+                  Navigator.pop(
+                    context,
+                    _filenameTextController.text.trim(),
+                  );
                 }),
           ],
         );

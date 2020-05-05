@@ -1,3 +1,5 @@
+import 'anti_task.dart';
+import 'recurring_task.dart';
 import 'transient_task.dart';
 import 'fileHandler.dart';
 import 'recurring_task.dart';
@@ -13,10 +15,10 @@ import 'testData/test_data.dart' as data;
 
 class Scheduler {
   //class properties
-  List<Task> _schedule;
+  List<Task> _schedule; // hold all ta
   FileHandler fileIO;
   Validator validator;
-  Map<int, List<dynamic>> _events; // hold a map of date keys for easy search
+  Map<int, List<dynamic>> _events; // holde events to show
 
   //constructor
   Scheduler() {
@@ -28,15 +30,13 @@ class Scheduler {
 
     validator = new Validator();
 
-      // setSchedule(data.TestData.set1);
-      //_seedData();
-    writeToFile("Set1.json");
+    // setSchedule(data.TestData.set1);
+
+    // // create initial schedule to simulator
+    //_seedData();
+
     readFromFile("Set1.json");
-    
-    //print(_schedule);
   }
-
-
 
   //Write the schedule to a file
   void writeToFile(String fileName) {
@@ -56,8 +56,8 @@ class Scheduler {
     List<dynamic> map = jsonDecode(jsonString);
     //Take each dynamic object in the List and cast it to <Map<String, Object>>
     List<Map<String, Object>> tasks = List<Map<String, Object>>();
-    for(var task in map){
-      Map<String, Object> newTask = task;    
+    for (var task in map) {
+      Map<String, Object> newTask = task;
       tasks.add(newTask);
     }
     //Set the Schedule with the data read from the file
@@ -85,9 +85,7 @@ class Scheduler {
   /// Create a task
   /// Appends new task to global task list
   Future<void> createTask(Map<String, Object> data) async {
-    print(data);
     var newTask = TaskGenerator().generateTask(data);
-    print(newTask.getName());
     List sched = this.getSchedule();
 
     try {
@@ -105,14 +103,13 @@ class Scheduler {
         // must have overlap to be added
         String type = newTask.runtimeType.toString();
         if (!validator.hasNoTimeOverlap(sched, newTask)) {
-          await this._schedule.add(newTask);
+          this._schedule.add(newTask);
         } else {
-          throw Exception("$type Overlap!");
+          throw Exception("$type was not added. No Recurring Task to cancel!");
         }
       }
 
       /// update schedule
-      /// TODO: create separate update func
       setEvents(this._schedule);
     } catch (e) {
       throw e;
@@ -120,12 +117,11 @@ class Scheduler {
   }
 
   /// set _events based on date/ date range provided
-  ///
-  void setEvents(List<Task> tasks) {
+  void setEvents(List<dynamic> tasks) {
     Date date, sDate, eDate;
     this._events = Map<int, List<dynamic>>();
     tasks.forEach((t) {
-      if (t is TransientTask) {
+      if (t is TransientTask || t is AntiTask) {
         date = t.getDate();
         this._events.update(date.getIntDate(), (listOfTasks) {
           listOfTasks.add(t);
@@ -143,7 +139,6 @@ class Scheduler {
             /// date does not exist
             /// i.e. Feb 30
             Date altDate = sDate.getLastDateOfMonth();
-
             this._events.update(altDate.getIntDate(), (listOfTasks) {
               listOfTasks.add(t);
               return listOfTasks;
@@ -163,6 +158,8 @@ class Scheduler {
           });
           sDate = t.getNextOccurance(sDate);
         }
+      } else {
+        throw Exception("Unexpected task type");
       }
     });
   }
@@ -177,7 +174,41 @@ class Scheduler {
     tasks = events[date.getIntDate()] != null
         ? events[date.getIntDate()]
         : List<dynamic>();
+    tasks = _filterRecurringTasks(tasks);
     return tasks;
+  }
+
+  List<dynamic> _filterRecurringTasks(List tasks) {
+    var anti = List<dynamic>();
+    var recur = List<dynamic>();
+    tasks.forEach((val) {
+      if (val is RecurringTask)
+        recur.add(val);
+      else if (val is AntiTask) anti.add(val);
+    });
+
+    var itemsToRemove = new List<int>();
+
+    if (anti.isNotEmpty) {
+      if (recur.length > anti.length) {
+        anti.forEach((a) {
+          for (int i = 0; i < recur.length; i++) {
+            if (a.getStartTime() == recur[i].getStartTime() &&
+                a.getDuration() == recur[i].getDuration()) {
+              itemsToRemove.add(i);
+            }
+          }
+        });
+      } else {
+        throw Exception("Found Antitasks without Recurring Tasks");
+      }
+    }
+
+    itemsToRemove.forEach((index) {
+      recur.removeAt(index);
+    });
+
+    return recur;
   }
 
   /// returns a list of task containing
@@ -192,12 +223,14 @@ class Scheduler {
       tasks = [...tasks, ...moreTasks];
       curr = curr.getNextDayDate();
     }
+    tasks = _filterRecurringTasks(tasks);
     return tasks;
   }
 
   Future<void> deleteTask(Task task) async {
-    if(task is RecurringTask) {
-      await _schedule.removeWhere((event) => event.getName().compareTo(task.getName()) == 0);
+    if (task is RecurringTask) {
+      await _schedule.removeWhere(
+          (event) => event.getName().compareTo(task.getName()) == 0);
     } else {
       await _schedule.remove(task);
     }
@@ -209,18 +242,18 @@ class Scheduler {
   List getNamedEvent(String name) {
     List<Task> task = new List<Task>();
     _schedule.forEach((t) {
-      if(t.getName().compareTo(name) == 0) {
+      if (t.getName().compareTo(name) == 0) {
         task.add(t);
       }
     });
     return task;
   }
 
-  // Helper function 
+  // Helper function
   //Searches list of tasks to find task by name if not found returns null
   Task _searchTaskByName(String name) {
     _schedule.forEach((task) {
-      if(task.getName().compareTo(name) == 0) {
+      if (task.getName().compareTo(name) == 0) {
         return task;
       }
     });
@@ -228,7 +261,7 @@ class Scheduler {
   }
 
   // Seed the device with test data
-  Future<void> _seedData(){
+  Future<void> _seedData() {
     _schedule.clear();
     //Set the schedule with the test data, write the file, delete schedule
     setSchedule(data.TestData.set1);
@@ -238,11 +271,11 @@ class Scheduler {
     setSchedule(data.TestData.set2);
     writeToFile("Set2.json");
     _schedule.clear();
-    // Custom Set 1
+    // // Custom Set 1
     setSchedule(data.TestData.customSet1);
     writeToFile("CustomSet1.json");
     _schedule.clear();
-    // Custom Set 2
+    // // Custom Set 2
     setSchedule(data.TestData.customSet2);
     writeToFile("CustomSet2.json");
     _schedule.clear();
