@@ -9,14 +9,14 @@ import 'package:pss/transient_task.dart';
 
 /// This class renders dialog boxes for creating tasks
 class DialogRenderer {
-  static var _nameTextController = new TextEditingController();
-  static var _typeTextController = new TextEditingController();
-  static var _startDateTextController = new TextEditingController();
-  static var _startTimeTextController = new TextEditingController();
-  static var _durationTextController = new TextEditingController();
-  static var _endDateTextController = new TextEditingController();
-  static var _frequencyTextController = new TextEditingController();
-  static var _dateTextController = new TextEditingController();
+  static final _nameTextController = new TextEditingController();
+  static final _typeTextController = new TextEditingController();
+  static final _startDateTextController = new TextEditingController();
+  static final _startTimeTextController = new TextEditingController();
+  static final _durationTextController = new TextEditingController();
+  static final _endDateTextController = new TextEditingController();
+  static final _frequencyTextController = new TextEditingController();
+  static final _dateTextController = new TextEditingController();
   String typeValue = '';
   BuildContext context;
 
@@ -148,6 +148,8 @@ class DialogRenderer {
     } else {
       taskTypes = kRecurTaskTypes;
     }
+    print("YO");
+    print(taskTypes);
 
     if (typeOfTask == "anti")
       _typeTextController.text = "Cancellation";
