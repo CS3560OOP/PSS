@@ -196,10 +196,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       onPressed: () {
         dialog.showFilenameDialog().then((val) {
-          scheduler.readFromFile(val);
-          _updateState();
+          try {
+            scheduler.readFromFile(val);
+            _updateState();
+          } catch (e) {
+            dialog.showErrorDialog(e.toString());
+          }
         }).catchError((e) {
-          print(e);
+          dialog.showErrorDialog(e.toString());
         });
       },
     );

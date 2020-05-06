@@ -19,22 +19,21 @@ class Scheduler {
   FileHandler fileIO;
   Validator validator;
   Map<int, List<dynamic>> _events; // holde events to show
+  List<Map<String, Object>> _tasks;
 
   //constructor
   Scheduler() {
     //start with empty schedule
     _schedule = new List<Task>();
     _events = new Map<int, List<dynamic>>();
+    _tasks = new List<Map<String, Object>>();
     //create the fileHandler object
     fileIO = new FileHandler();
-
     validator = new Validator();
-
-    // setSchedule(data.TestData.set1);
 
     // // create initial schedule to simulator
     //_seedData();
-    readFromFile("Set2.json");
+    //readFromFile("Set2.json");
   }
 
   //Write the schedule to a file
@@ -57,13 +56,24 @@ class Scheduler {
     for (var task in map) {
       Map<String, Object> newTask = task;
       tasks.add(newTask);
-      //createTask(task);
+      try {
+        createTask(task);
+      } catch (e) {
+        throw e;
+      }
     }
 
-    //Set the Schedule with the data read from the file
-    setSchedule(tasks);
-    //Set the Events with the schedule
-    setEvents(_schedule);
+    // if (this._tasks.isNotEmpty) {
+    //   tasks = [...this._tasks, ...tasks];
+    // } else {
+    //   this._tasks = tasks;
+    // }
+
+    // //Set the Schedule with the data read from the file
+    // setSchedule(tasks);
+
+    // //Set the Events with the schedule
+    // setEvents(_schedule);
   }
 
   /// Returns processed schedule
@@ -247,15 +257,8 @@ class Scheduler {
   }
 
   Future<void> deleteTask(Task task) async {
-    // if (task is RecurringTask) {
-    //   await this._schedule.removeWhere(
-    //       (event) => event.getName().compareTo(task.getName()) == 0);
-    // } else {
-    //   await this._schedule.remove(task);
-    // }
     this._schedule.remove(task);
     setEvents(this._schedule);
-    //await _schedule.removeWhere((task) => task.getName().compareTo(name) == 0);
   }
 
   //Returns singleton list of task of the given name if not found returns empty list
@@ -288,16 +291,16 @@ class Scheduler {
     writeToFile("Set1.json");
     _schedule.clear();
     // Set 2
-    setSchedule(data.TestData.set2);
-    writeToFile("Set2.json");
-    _schedule.clear();
-    // Custom Set 1
-    setSchedule(data.TestData.customSet1);
-    writeToFile("CustomSet1.json");
-    _schedule.clear();
-    // Custom Set 2
-    setSchedule(data.TestData.customSet2);
-    writeToFile("CustomSet2.json");
-    _schedule.clear();
+    // setSchedule(data.TestData.set2);
+    // writeToFile("Set2.json");
+    // _schedule.clear();
+    // // Custom Set 1
+    // setSchedule(data.TestData.customSet1);
+    // writeToFile("CustomSet1.json");
+    // _schedule.clear();
+    // // Custom Set 2
+    // setSchedule(data.TestData.customSet2);
+    // writeToFile("CustomSet2.json");
+    // _schedule.clear();
   }
 }

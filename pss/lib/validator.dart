@@ -31,7 +31,7 @@ class Validator {
 
   /// DATE VALIDATORS ***************************************************************
 
-  /// TASK FORMAT VALIDATORS *********************************************************
+  /// TASK FORMAT VALIDATORS ********************************************************
   void validateTask(List sched, Map<String, Object> task) {
     final matcher = new Type();
     try {
@@ -169,8 +169,6 @@ class Validator {
           if (start < t["EndTime"] && end > t["StartTime"]) return false;
         }
       } else if (newTask is AntiTask) {
-        print("IM a anti task");
-
         /// Overlap for an antitask
         /// means both start and end times
         /// are the equal
